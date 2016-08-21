@@ -38,7 +38,8 @@ set number                    " Show line numbers
 set relativenumber            " Make the line numbers relative to current position
 
 syntax enable
-colorscheme badwolf
+" colorscheme badwolf
+colorscheme muon
 set cursorline
 set guifont=Inconsolata\ for\ Powerline\ 10
 set incsearch

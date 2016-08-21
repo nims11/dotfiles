@@ -1,0 +1,38 @@
+## Prompt theme extension ##
+# Virtualenv support
+function virtual_env_prompt () {
+   REPLY=${VIRTUAL_ENV+(${VIRTUAL_ENV:t}) }
+}
+grml_theme_add_token  virtual-env -f virtual_env_prompt '%F{magenta}' '%f'
+zstyle ':prompt:grml:left:setup' items rc virtual-env change-root user at host path vcs percent
+
+# use the vi navigation keys (hjkl) besides cursor keys in menu completion
+bindkey -M menuselect 'h' vi-backward-char        # left
+bindkey -M menuselect 'k' vi-up-line-or-history   # up
+bindkey -M menuselect 'l' vi-forward-char         # right
+bindkey -M menuselect 'j' vi-down-line-or-history # bottom
+
+## set command prediction from history, see 'man 1 zshcontrib'
+is4 && zrcautoload predict-on && \
+zle -N predict-on         && \
+zle -N predict-off        && \
+bindkey "^X^Z" predict-on && \
+bindkey "^Z" predict-off
+
+## try to avoid the 'zsh: no matches found...'
+setopt nonomatch
+
+## don't warn me about bg processes when exiting
+setopt nocheckjobs
+
+## compsys related snippets ##
+## changed completer settings
+zstyle ':completion:*' completer _complete _correct _approximate
+zstyle ':completion:*' expand prefix suffix
+# another different completer setting: expand shell aliases
+zstyle ':completion:*' completer _expand_alias _complete _approximate
+
+## use a default width of 80 for manpages for more convenient reading
+export MANWIDTH=${MANWIDTH:-80}
+
+source ~/.bash_me
