@@ -1,0 +1,15 @@
+[user]
+	name = Nimesh Ghelani
+	email = nimeshghelani@gmail.com
+[github]
+	user = nims11
+	token = 3bee22cd2ba15bde09cdf0de5e03657f
+[core]
+	editor = vim
+[color]
+	status = auto
+	branch = auto
+[alias]
+    st = status
+    co = checkout
+    pm = push origin master
