@@ -300,57 +300,26 @@
       </action>
     </keybind>
     <!-- Keybindings for window switching with the arrow keys -->
-    <keybind key="W-S-Right">
+    <keybind key="W-S-l">
       <action name="DirectionalCycleWindows">
         <direction>right</direction>
       </action>
     </keybind>
-    <keybind key="W-S-Left">
+    <keybind key="W-S-h">
       <action name="DirectionalCycleWindows">
         <direction>left</direction>
       </action>
     </keybind>
-    <keybind key="W-S-Up">
+    <keybind key="W-S-k">
       <action name="DirectionalCycleWindows">
         <direction>up</direction>
       </action>
     </keybind>
-    <keybind key="W-S-Down">
+    <keybind key="W-S-j">
       <action name="DirectionalCycleWindows">
         <direction>down</direction>
       </action>
     </keybind>
-    <!-- Keybindings for running applications -->
-    <keybind key="W-e">
-      <action name="Execute">
-        <startupnotify>
-          <enabled>true</enabled>
-          <name>Konqueror</name>
-        </startupnotify>
-        <command>kfmclient openProfile filemanagement</command>
-      </action>
-    </keybind>
-    <keybind key="C-A-1">
-      <action name="Desktop">
-        <desktop>1</desktop>
-      </action>
-    </keybind>
-    <keybind key="C-A-2">
-      <action name="Desktop">
-        <desktop>2</desktop>
-      </action>
-    </keybind>
-    <keybind key="C-A-3">
-      <action name="Desktop">
-        <desktop>3</desktop>
-      </action>
-    </keybind>
-    <keybind key="C-A-4">
-      <action name="Desktop">
-        <desktop>4</desktop>
-      </action>
-    </keybind>
-    <!--TEST -->
     <keybind key="W-KP_7">
       <action name="MoveResizeTo">
         <x>0</x>
@@ -416,7 +385,7 @@
       </action>
       <action name="UnmaximizeFull"/>
     </keybind>
-    <keybind key="W-Left">
+    <keybind key="W-h">
       <action name="UnmaximizeFull"/>
       <action name="MaximizeVert"/>
       <action name="MoveResizeTo">
@@ -424,7 +393,7 @@
       </action>
       <action name="MoveToEdgeWest"/>
     </keybind>
-    <keybind key="W-Right">
+    <keybind key="W-l">
       <action name="UnmaximizeFull"/>
       <action name="MaximizeVert"/>
       <action name="MoveResizeTo">
@@ -434,6 +403,16 @@
     </keybind>
     <keybind key="W-M">
       <action name="ToggleMaximize"/>
+    </keybind>
+    <keybind key="W-space">
+        <action name="Execute">
+            <command>~/scripts/j4-dmenu-launcher.sh</command>
+        </action>
+    </keybind>
+    <keybind key="W-r">
+        <action name="Execute">
+            <command>openbox --reconfigure</command>
+        </action>
     </keybind>
     <!--    <keybind key="XF86AudioPlay">
       <action name="Execute">
