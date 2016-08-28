@@ -1,0 +1,4 @@
+#!/bin/bash
+for i in "$@"; do
+    xterm -e "~/compressVideo '$i' 1280 720"
+done

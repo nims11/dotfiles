@@ -1,0 +1,22 @@
+#!/usr/bin/python
+import re, sys, os, ntpath
+if __name__ == '__main__':
+    if sys.argv[1] == '--manual':
+        from pythonzenity import Entry
+        regex = Entry(text="Enter string (or regex) to replace")
+        repl = Entry(text="Enter replacement string")
+        for f in sys.argv[2:]:
+            dirname, originalFName = ntpath.dirname(f), ntpath.basename(f)
+            finalFName = originalFName
+            finalFName = re.sub(regex, repl, finalFName)
+            os.rename(f, os.path.join(dirname, finalFName))
+    else:
+        for f in sys.argv[1:]:
+            dirname, originalFName = ntpath.dirname(f), ntpath.basename(f)
+            finalFName = re.sub(r'\s*\[.*?\]\s*', '',  originalFName)
+            finalFName = re.sub(r'_', ' ', finalFName)
+            basefilename, ext = os.path.splitext(finalFName)
+            basefilename = re.sub(r'^ *', '', basefilename)
+            basefilename = re.sub(r' *$', '', basefilename)
+            finalFName = ''.join([basefilename, ext])
+            os.rename(f, os.path.join(dirname, finalFName))

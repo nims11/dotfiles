@@ -1,0 +1,16 @@
+#!/bin/sh
+LINE_HEIGHT=25
+NUM_LINES=4
+RELATIVE_WIDTH=30
+OFFSET_Y=-100
+
+DIMENSION=$(xdpyinfo  | grep dimensions | awk '{print $2}')
+SCREEN_WIDTH=$(echo $DIMENSION | cut -d'x' -f1)
+SCREEN_HEIGHT=$(echo $DIMENSION | cut -d'x' -f2)
+DMENU_WIDTH=$((SCREEN_WIDTH*RELATIVE_WIDTH/100))
+DMENU_HEIGHT=$(((NUM_LINES+1)*LINE_HEIGHT))
+DMENU_X=$((SCREEN_WIDTH/2-DMENU_WIDTH/2))
+DMENU_Y=$((SCREEN_HEIGHT/2-DMENU_HEIGHT/2+OFFSET_Y))
+DMENU_COMMAND="dmenu -h $LINE_HEIGHT -l $NUM_LINES -x $DMENU_X -y $DMENU_Y -w $DMENU_WIDTH -i -p '>'"
+
+j4-dmenu-desktop  --dmenu="$DMENU_COMMAND" --term="IN_TMUX=1 terminator"
