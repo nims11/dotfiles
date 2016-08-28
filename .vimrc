@@ -149,9 +149,6 @@ let g:syntastic_cpp_compiler_options = ' --std=c++11'
 nnoremap <leader>sw :w !sudo tee %<CR>
 
 " Competitive Programming Stuffs
-" Open sample
-nnoremap <leader>rr :r /media/Development/start.cpp<cr>ggddGkddko
-nnoremap <leader>tt iin_T{<cr>}
 " Open Input File
 nnoremap <leader>ci :execute "vsplit %:r.in"<CR><C-W>r<CR>
 " Execute
