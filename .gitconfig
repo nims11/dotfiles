@@ -9,7 +9,9 @@
 [color]
 	status = auto
 	branch = auto
+	ui = auto
 [alias]
     st = status
     co = checkout
     pm = push origin master
+    lg = log --decorate --graph --oneline
