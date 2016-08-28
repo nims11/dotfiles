@@ -1,0 +1,2 @@
+#!/bin/bash
+ffmpeg -i "$1" -vcodec libx264 -preset medium -crf 23 -s $2x$3 -aspect $2:$3 -r 23.976 -threads 4 -ab 128k -ar 48000 -async 480000 -ac 2 -scodec copy "${1%.*}.2.mkv"

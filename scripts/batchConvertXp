@@ -1,0 +1,4 @@
+#!/bin/bash
+for i in "$@"; do
+    xterm -e "~/scripts/compressVideoNoSize '$i'"
+done
