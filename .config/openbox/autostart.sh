@@ -1,9 +1,8 @@
 #!/bin/bash
-bmpanel2 &
+tint2 -c /home/nimesh/.config/tint2/text_only_1.tint2rc &
 pnmixer &
 ~/wallpaper.sh &
-xfce4-power-manager &
-synapse &
 compton --config ~/.compton.conf --backend glx --vsync opengl-swc -b &
 artha &
-terminator &
+AUTOSTART_TMUX=1 terminator &
+sudo netctl start eduroam &

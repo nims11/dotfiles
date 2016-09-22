@@ -2360,7 +2360,13 @@ function prompt_grml_precmd_worker () {
 
 grml_prompt_fallback() {
     setopt prompt_subst
+<<<<<<< HEAD
     local p0 p1
+=======
+    precmd() {
+        (( ${+functions[vcs_info]} )) && vcs_info
+    }
+>>>>>>> 0c6bd552ebe759d1b29515483dcf03fa56d4ea7a
 
     p0="${RED}%(?..%? )${WHITE}${debian_chroot:+($debian_chroot)}"
     p1="${BLUE}%n${NO_COLOR}@%m %40<...<%B%~%b%<< "'${vcs_info_msg_0_}'"%# "
@@ -2369,6 +2375,10 @@ grml_prompt_fallback() {
     else
         PROMPT="${RED}${p0}${BLUE}${p1}"
     fi
+<<<<<<< HEAD
+=======
+    unset p0 p1
+>>>>>>> 0c6bd552ebe759d1b29515483dcf03fa56d4ea7a
 }
 
 if zrcautoload promptinit && promptinit 2>/dev/null ; then
@@ -2381,7 +2391,10 @@ if zrcautoload promptinit && promptinit 2>/dev/null ; then
 else
     print 'Notice: no promptinit available :('
     grml_prompt_fallback
+<<<<<<< HEAD
     precmd() { (( ${+functions[vcs_info]} )) && vcs_info; }
+=======
+>>>>>>> 0c6bd552ebe759d1b29515483dcf03fa56d4ea7a
 fi
 
 if is437; then
@@ -2414,7 +2427,10 @@ if is437; then
     fi
 else
     grml_prompt_fallback
+<<<<<<< HEAD
     precmd() { (( ${+functions[vcs_info]} )) && vcs_info; }
+=======
+>>>>>>> 0c6bd552ebe759d1b29515483dcf03fa56d4ea7a
 fi
 
 # Terminal-title wizardry

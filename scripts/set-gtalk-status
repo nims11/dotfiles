@@ -1,0 +1,28 @@
+#!/usr/bin/python2
+ 
+USERNAME = ""       # don't include @gmail.com
+PASSWORD = ""
+RESOURCE = "gmail.com"
+ 
+import sys
+ 
+if len(sys.argv) < 2:
+    print 'Usage: python gstatus.py <show> [<status>]'
+    print '     <show> is either "default" or "dnd"'
+    print '     <status> is the status string (optional)'
+    exit()
+ 
+import warnings
+warnings.filterwarnings("ignore") # silence DeprecationWarning messages
+from xmpp import *
+ 
+cl=Client(server='gmail.com',debug=[])
+if not cl.connect(server=('talk.google.com',5222)):
+    raise IOError('Can not connect to server.')
+if not cl.auth(USERNAME, PASSWORD, RESOURCE):
+    raise IOError('Can not auth with server.')
+cl.send(Iq('set','google:shared-status', payload=[
+        Node('show',payload=[sys.argv[1]]),
+        Node('status',payload=[sys.argv[2] if len(sys.argv)>2 else ""])
+]))
+cl.disconnect()
