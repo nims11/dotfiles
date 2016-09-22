@@ -6,6 +6,9 @@ mktempfifo(){
 }
 BAR_PIPE=$(mktempfifo)
 FEEDBACK_PIPE=$(mktempfifo)
+
+# HANDLERS
+# These methods are responsible to handle actions from lemonbar
 volhandler(){
     if [[ $# == 1 ]]; then
         /usr/bin/pavucontrol &
@@ -32,6 +35,7 @@ handler(){
     esac
 }
 
+# VIEWS
 wname(){
     xdotool getactivewindow getwindowname
 }
@@ -49,17 +53,19 @@ draw_bar(){
     echo "%{l} $(wname)%{r} $(volume)   $(clock) "
 }
 
-
+# lemonbar event loop
 while read line; do
     echo $line >> /tmp/lbar.log
     draw_bar
 done < $BAR_PIPE | lemonbar -b -g x30 -B#333 -f "FontAwesome-10" -f "Inconsolata-10" > $FEEDBACK_PIPE &
 
+# action event loop
 while read line; do
     echo $line >> /tmp/lbar.log
     handler $line
 done < $FEEDBACK_PIPE > $BAR_PIPE &
 
+# periodic redrawing
 while true; do
     echo redraw
     sleep 0.5
