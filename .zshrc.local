@@ -38,4 +38,4 @@ zstyle ':completion:*' completer _expand_alias _complete _approximate
 export MANWIDTH=${MANWIDTH:-80}
 
 source ~/.bash_me
-source /home/nghelani/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source ~/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh

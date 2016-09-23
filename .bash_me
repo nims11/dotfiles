@@ -34,4 +34,7 @@ alias tx="tmux attach || tmux"
 # Custom dircolors
 eval $(dircolors ~/.dircolors)
 
-[[ "$AUTOSTART_TMUX" == "1" ]] && tx
+if [[ "$AUTOSTART_TMUX" == "1" ]]; then
+    AUTOSTART_TMUX=0
+    tx
+fi
