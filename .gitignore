@@ -2,3 +2,4 @@
 !scripts/
 .config/nvim
 .vim/init.vim
+.config/openbox/autostart.sh
