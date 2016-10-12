@@ -1,44 +1,38 @@
-syntax on
-filetype off
+" Load vim-plug
+if empty(glob("~/.vim/autoload/plug.vim"))
+    execute 'curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+endif
 
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-
-Plugin 'scrooloose/syntastic'
-Plugin 'bling/vim-airline'
-Plugin 'tComment'
-Plugin 'flazz/vim-colorschemes'
-Plugin 'scrooloose/nerdtree'
-Plugin 'Lokaltog/vim-easymotion'
-Plugin 'honza/vim-snippets'
-Plugin 'godlygeek/tabular'
-" Plugin 'plasticboy/vim-markdown'
-" Plugin 'Raimondi/delimitMate'
-Plugin 'jiangmiao/auto-pairs'
-Plugin 'tpope/vim-surround'
-
-Plugin 'Rip-Rip/clang_complete'
-" Plugin 'Shougo/neocomplete.vim'
-Plugin 'Shougo/deoplete.nvim'
-Plugin 'SirVer/ultisnips'
-Plugin 'sjl/gundo.vim'
-Plugin 'tpope/vim-fugitive'
-Plugin 'tmhedberg/SimpylFold'
-Plugin 'christoomey/vim-tmux-navigator'
-" Plugin 'kien/ctrlp.vim'
+call plug#begin('~/.vim/plugged')
+" Plugin 'scrooloose/syntastic'
+Plug 'bling/vim-airline'
+Plug 'tComment'
+Plug 'flazz/vim-colorschemes'
+Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
+" Plug 'Lokaltog/vim-easymotion'
+Plug 'honza/vim-snippets'
+" Plug 'godlygeek/tabular'
+Plug 'plasticboy/vim-markdown', {'for': 'markdown'}
+Plug 'jiangmiao/auto-pairs'
+Plug 'tpope/vim-surround'
+Plug 'Rip-Rip/clang_complete'
+Plug 'Shougo/deoplete.nvim'
+Plug 'SirVer/ultisnips'
+Plug 'sjl/gundo.vim'
+Plug 'tpope/vim-fugitive'
+Plug 'tmhedberg/SimpylFold'
+Plug 'christoomey/vim-tmux-navigator'
 
 " deoplete external sources
-Plugin 'eagletmt/neco-ghc'
-Plugin 'zchee/deoplete-jedi'
-call vundle#end()
+Plug 'eagletmt/neco-ghc'
+Plug 'zchee/deoplete-jedi'
+
+call plug#end()
 
 filetype plugin indent on     " Auto indent
-
 set number                    " Show line numbers
 set relativenumber            " Make the line numbers relative to current position
-
 syntax enable
-" colorscheme badwolf
 colorscheme muon
 set cursorline
 set guifont=Inconsolata\ for\ Powerline\ 10
@@ -50,20 +44,14 @@ set foldlevelstart=10
 set foldnestmax=10
 set foldmethod=indent
 
-set laststatus=2
-set encoding=utf-8
 set ffs=unix,dos,mac
-" set t_Co=256
-
 set so=12                     " Avoid cursor getting to bottom/top
 set wildignore=*.o,*~,*.pyc
 set ruler
-set cmdheight=1
 
 " Search options
 set ignorecase
 set smartcase
-set hlsearch
 nmap // :noh<cr>
 
 set pastetoggle=<F2>
@@ -73,7 +61,6 @@ set mat=2
 
 set noerrorbells
 set novisualbell
-" set t_vb=
 set tm=500
 
 set nobackup
@@ -85,7 +72,6 @@ set smarttab
 set shiftwidth=4
 set	tabstop=4
 set softtabstop=4
-" set textwidth=79
 set autoindent
 
 set ai
@@ -96,13 +82,6 @@ map j gj
 map k gk
 
 inoremap jk <esc>
-
-nnoremap H 0
-nnoremap L $
-vnoremap H 0
-vnoremap L $
-
-inoremap <C-Space> <esc>
 
 " Set leader key
 let g:mapleader = ","
