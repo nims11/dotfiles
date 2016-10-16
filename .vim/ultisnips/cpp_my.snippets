@@ -1,0 +1,371 @@
+snippet pair "std::pair (pair)"
+std::pair<${1:int},${2:int}> pair;
+endsnippet
+
+snippet factorial "factorial"
+int fact[${1:1000010}];
+void gen_fact(){
+fact[0] = 1;
+for(int i = 1;i<$1;i++)
+	fact[i] = (i*1LL*fact[i-1])%mod;
+}
+endsnippet
+
+snippet factorial "factorial with inverse"
+int fact[${1:1000010}], inv[$1];
+void gen_fact(){
+fact[0] = 1;
+inv[0] = POW(fact[0], mod-2);
+for(int i = 1;i<$1;i++)
+	fact[i] = (i*1LL*fact[i-1])%mod;
+	inv[i] = POW(fact[i], mod-2);
+}
+endsnippet
+
+snippet power "logarithmic power"
+int POW(long long r, long long n){
+	int ans = 1;
+	while(n>0){
+		if(n&1) ans = (ans*r)%mod;
+		n >>= 1;
+		r = (r*r)%mod;
+	}
+	return ans;
+}
+endsnippet
+
+snippet combination "n <= 2000"
+int C[${1:1001}][$1];
+void gen_C(){
+	for(int i = 0;i<$1;i++)
+		C[i][0] = C[i][i] = 1;
+	for(int i = 0;i<$1;i++)
+		for(int j = 0;j<$1;j++)
+			C[i][j] = (C[i-1][j-1] + C[i-1][j])%mod;
+}
+endsnippet
+
+snippet combination "n <= 1000000"
+long long C(int n, int k){
+	return MUL(fact[n], MUL(inv[k], inv[n-k]));
+}
+endsnippet
+
+snippet BIT "Binary Indexed Tree"
+int BIT[${1:1000001}];
+int query(int idx, int n){
+	int ret = 0;
+	while(idx>0){
+		ret += BIT[idx];
+		idx -= idx & -idx;
+	}
+	return ret;
+}
+void update(int idx, int n, int val){
+	while(idx<=n){
+		BIT[idx] += val;
+		idx += idx & -idx;
+	}
+}
+endsnippet
+
+snippet segment_tree "Segment Tree"
+#define ARR_SIZE ${1:100010}
+struct node{
+	//Node variables
+};
+node TREE[ARR_SIZE<<2];
+int n,arr[ARR_SIZE];
+using namespace std;
+void build_segment_tree(int NODE,int a,int b){
+	if(a==b){
+		// Single node condition
+		return;
+	}
+	int mid=(a+b)/2;
+	int left=2*NODE,right=2*NODE+1;
+	build_segment_tree(left,a,mid);
+	build_segment_tree(right,mid+1,b);
+
+	// Merge Logic for left and right
+}
+node query_segment_tree(int NODE,int a,int b,int x,int y){
+	if(x<=a && y>=b)return TREE[NODE];
+	int mid=(a+b)/2;
+	int left=2*NODE,right=2*NODE+1;
+	if(y<=mid)return query_segment_tree(left,a,mid,x,y);
+	if(x>mid)return query_segment_tree(right,mid+1,b,x,y);
+
+	node left_query=query_segment_tree(left,a,mid,x,y);
+	node right_query=query_segment_tree(right,mid+1,b,x,y);
+
+	node ans;
+	// Merge left_query and right_query into ans
+	return ans;
+}
+void update_segment_tree(int NODE,int a,int b,int x){
+	if(a==b){
+		//Single node logic
+		return;
+	}
+	int mid=(a+b)/2;
+	int left=2*NODE,right=2*NODE+1;
+	if(x<=mid) update_segment_tree(left,a,mid,x);
+	else update_segment_tree(right,mid+1,b,x);
+
+	//Merge left and right nodes
+}
+endsnippet
+
+snippet gcd "GCD"
+int GCD(int a,int b){
+	while(b){
+		swap(a, b);
+		b %= a;
+	}
+	return a;
+}
+endsnippet
+
+snippet primes "sieve primes"
+#define MAX_N ${1:3000000}
+int sieve[MAX_N+1];
+vector<int> primes;
+void genPrimes(){
+	primes.push_back(2);
+	for(int i = 3;i<=MAX_N;i+=2){
+		if(sieve[i] == 0){
+			primes.push_back(i);
+			if(i*1LL*i <= MAX_N)
+			for(int j = i*i;j<=MAX_N;j+=i)
+				sieve[j] = 1;
+		}
+	}
+}
+endsnippet
+
+snippet start "Start Template"
+#include <bits/stdc++.h>
+#define in_T int t;for(scanf("%d",&t);t--;)
+#define in_I(a) scanf("%d",&a)
+#define in_F(a) scanf("%lf",&a)
+#define in_L(a) scanf("%lld",&a)
+#define in_S(a) scanf("%s",a)
+#define newline printf("\n")
+#define BE(a) a.begin(), a.end()
+
+using namespace std;
+const int mod = 1000000007;
+#define MUL(a, b) ((a*1LL*b)%mod)
+#define ADD(a, b) ((a+b)%mod)
+
+int main(){
+	$1
+}
+endsnippet
+
+snippet dinic "dinic max flow"
+struct Edge{
+	// u -> v
+	int u, v, cap, flow, rev;
+	Edge(int u, int v, int cap, int flow, int rev):u(u),v(v),cap(cap),flow(flow), rev(rev){}
+	int rcap(){return cap-flow;}
+};
+
+struct Graph{
+	// Always numbered 0-based index
+	int s, t, N;
+	vector<vector<Edge>> neigh;
+	Graph(int N):neigh(N),N(N){}
+
+	void addEdge(int u, int v, int cap){
+		neigh[u].push_back(Edge(u, v, cap, 0, neigh[v].size()));
+		neigh[v].push_back(Edge(v, u, cap, 0, neigh[u].size()-1));
+	}
+};
+
+
+namespace dinic {
+	const int INF = 1e9;
+	int dfs(int idx, int flow, vector<vector<Edge *>> &neigh, Graph &g, int sink, int par=-1){
+		if(idx == sink)
+			return flow;
+		int totalFlowPassed = 0;
+		for(Edge *e: neigh[idx]){
+			if(e->v != par && e->rcap() >= 0){
+				int flowPassed = dfs(e->v, min(flow, e->rcap()), neigh, g, sink, idx);
+				flow -= flowPassed;
+				// e->cap -= flowPassed;
+				e->flow += flowPassed;
+				// g.neigh[e->v][e->rev].cap += flowPassed;
+				g.neigh[e->v][e->rev].flow -= flowPassed;
+				totalFlowPassed += flowPassed;
+			}
+		}
+		return totalFlowPassed;
+	}
+	long long getBlockingFlow(Graph &g){
+		// Generate a Level Graph
+		queue<int> BFS;
+		vector<vector<Edge *>> g_L(g.N);
+		int dist[g.N];
+		memset(dist, -1, sizeof(dist));
+		BFS.push(g.s);
+		dist[g.s] = 0;
+		while(!BFS.empty()){
+			int u = BFS.front();
+			BFS.pop();
+			for(Edge &e: g.neigh[u]){
+				if(e.rcap() <= 0)continue;
+				if(dist[e.v] == -1){
+					dist[e.v] = dist[u]+1;
+					BFS.push(e.v);
+				}
+				// if(dist[e.v] == dist[u] + 1){
+				if(dist[e.v] > dist[u]){
+					g_L[u].push_back(&e);
+				}
+			}
+		}
+		if(dist[g.t] == -1)return 0;
+
+		// Blocking flow
+		return dfs(g.s, INF, g_L, g, g.t);
+	}
+	long long getMaxFlow(Graph &g){
+		long long maxflow = 0;
+		while(long long blockingFlow = getBlockingFlow(g)){
+			maxflow += blockingFlow;
+		}
+		return maxflow;
+	}
+}
+endsnippet
+
+snippet RMQ "RMQ"
+struct LogCache {
+	int LOG2[MAXN];
+	LogCache();
+};
+LogCache::LogCache(){
+	int curr = 2;
+	LOG2[1] = 0;
+	for(int i = 2; i<=100001;i++){
+		if(i == curr){
+			curr <<= 1;
+			LOG2[i] = LOG2[i-1] + 1;
+		}else
+			LOG2[i] = LOG2[i-1];
+	}
+}
+
+struct RMQ{
+	int n;
+	int aux[MAXN][22];
+	static LogCache logCache;
+	void init(int n, const int *arr);
+	int query(int x, int y);
+}rmq;
+LogCache RMQ::logCache;
+void RMQ::init(int n, const int *arr){
+	this->n = n;
+	for(int i=1;i<=n;i++){
+		aux[i][0] = arr[i];
+	}
+	for(int j=1; (1<<j)<=n+1; j++)
+		for(int i=1;i+(1<<j)<=n+1;i++)
+			aux[i][j] = max(aux[i][j-1], aux[i+(1<<(j-1))][j-1]);
+}
+int RMQ::query(int x, int y){
+	int k = logCache.LOG2[y-x+1];
+	return max(aux[x][k], aux[y-(1<<k)+1][k]);
+}
+endsnippet
+
+snippet LCA "LCA"
+vector<int> neigh[MAXN];
+struct LogCache {
+	int LOG2[MAXN];
+	LogCache();
+};
+LogCache::LogCache(){
+	int curr = 2;
+	LOG2[1] = 0;
+	for(int i = 2; i<=100001;i++){
+		if(i == curr){
+			curr <<= 1;
+			LOG2[i] = LOG2[i-1] + 1;
+		}else
+			LOG2[i] = LOG2[i-1];
+	}
+}
+
+struct LCA {
+	static LogCache logCache;
+	int par[MAXN][20], depth[MAXN], sz[MAXN];
+	int dfs(int idx);
+	void build(int root){depth[root] = 1; dfs(root);}
+
+	// Get nth parent
+	int getPar(int u, int n);
+	int lca(int u, int v);
+}lca;
+LogCache LCA::logCache;
+int LCA::dfs(int idx){
+	sz[idx] = 1;
+	for(int i = 0;i<neigh[idx].size();i++){
+		int v = neigh[idx][i];
+		if(!depth[v]){
+			par[v][0] = idx;
+			int curV = idx;
+			int curIdx = 1;
+			while(par[curV][curIdx-1]){
+				par[v][curIdx] = par[curV][curIdx-1];
+				curV = par[v][curIdx];
+				curIdx++;
+			}
+			depth[v] = depth[idx]+1;
+			sz[idx] += dfs(v);
+		}
+	}
+	return sz[idx];
+}
+int LCA::getPar(int u, int n){
+	int ret = u;
+	while(n){
+		int idx = logCache.LOG2[n];
+		n -= (1<<idx);
+		ret = par[ret][idx];
+	}
+	return ret;
+}
+int LCA::lca(int u, int v){
+	while(depth[u] != depth[v]){
+		if(depth[u] > depth[v]){
+			int idx = 0;
+			int curV = par[u][idx];
+			while(curV && depth[curV] >= depth[v])
+				curV = par[u][++idx];
+			--idx;
+			u = par[u][idx];
+		}else
+			swap(u, v);
+	}
+	while(u != v){
+		int idx = -1;
+		int u1 = u, v1 = v;
+		while(u1 && v1 && u1 != v1){
+			idx++;
+			u1 = par[u][idx];
+			v1 = par[v][idx];
+		}
+		idx--;
+		if(idx == -1){
+			v = u = par[u][0];
+			break;
+		}
+		u = par[u][idx], v = par[v][idx];
+	}
+	return u;
+}
+endsnippet

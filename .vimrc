@@ -4,13 +4,12 @@ if empty(glob("~/.vim/autoload/plug.vim"))
 endif
 
 call plug#begin('~/.vim/plugged')
-" Plugin 'scrooloose/syntastic'
+Plug 'scrooloose/syntastic'
 Plug 'bling/vim-airline'
 Plug 'tComment'
 Plug 'flazz/vim-colorschemes'
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 " Plug 'Lokaltog/vim-easymotion'
-Plug 'honza/vim-snippets'
 " Plug 'godlygeek/tabular'
 Plug 'plasticboy/vim-markdown', {'for': 'markdown'}
 Plug 'jiangmiao/auto-pairs'
@@ -162,8 +161,4 @@ let g:deoplete#enable_at_startup = 1
 let g:deoplete#enable_smart_case = 1
 " Close preview window after completion
 autocmd CompleteDone * pclose!
-" Clang complete
-let g:clang_complete_auto = 0
-let g:clang_auto_select = 0
-let g:clang_omnicppcomplete_compliance = 0
-let g:clang_make_default_keymappings = 0
+let g:UltiSnipsSnippetDirectories=[$HOME.'/.vim/ultisnips']
