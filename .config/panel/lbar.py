@@ -6,8 +6,22 @@ import wnck
 import gtk
 import sys
 import os
+import traceback
 from collections import defaultdict
 from threading import Thread
+
+# Helpers
+def schedule(time_in_seconds):
+    def _scheduled(func):
+        def _run():
+            while True:
+                try:
+                    func()
+                except:
+                    traceback.print_exc(file=sys.stderr)
+                time.sleep(time_in_seconds)
+        Thread(target=_run).start()
+    return _scheduled
 
 BRIGHT_FILE = '/sys/class/backlight/acpi_video0'
 MAX_BRIGHTNESS = 10
@@ -23,14 +37,17 @@ temp_info_item = None
 
 icons['volume_high'] = u'\uF028'
 icons['brightness_high'] = u'\uF185'
+icons['os'] = u'\uF17C'
 
-widgets['volume'] = '%%{A4:volume_up:}%%{A5:volume_down:}%%{A0:volume_show:}%s%%{A}%%{A}%%{A}' % icons['volume_high']
+widgets['volume'] = '%%{A:volume_more:}%%{A4:volume_up:}%%{A5:volume_down:}%%{A0:volume_show:}%s%%{A}%%{A}%%{A}%%{A}' % icons['volume_high']
 widgets['brightness'] = '%%{A4:brightness_up:}%%{A5:brightness_down:}%%{A0:brightness_show:}%s%%{A}%%{A}%%{A}' % icons['brightness_high']
+widgets['os_plain'] = '%%{A:update:}%%{A0:os_show:}%s%%{A}%%{A}' % icons['os']
+widgets['os'] = widgets['os_plain']
 
 screen = wnck.screen_get_default()
 screen.force_update()
 
-bar_proc = subprocess.Popen('/home/nimesh/bar/lemonbar -b -g x20 -B#333 -f "Inconsolata-8" -f "FontAwesome-8"',
+bar_proc = subprocess.Popen('/home/nimesh/bar/lemonbar -b -g x20 -B#333 -f "Ubuntu Mono-8" -f "FontAwesome-8"',
         shell=True,
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE)
@@ -45,26 +62,24 @@ def redraw():
     info_panel_item = widgets['wname']
     if temp_info_active:
         info_panel_item = widgets[temp_info_item]
-    panel_str = u'%%{l} %s %%{r} %s %s %s \n' % (
-            info_panel_item, 
-            widgets['brightness'],
-            widgets['volume'],
-            widgets['clock']
+    panel_str = u'%%{l} %s %%{r} %s \n' % (
+                info_panel_item,
+                ' '.join(widgets[x] for x in ('os', 'brightness', 'volume', 'clock'))
             )
     bar_proc.stdin.write(panel_str.encode('utf-8'))
     bar_proc.stdin.flush()
 
+@schedule(1)
 def clock():
     global widgets
-    while True:
-        widgets['clock'] = b'%%{A:calendar:}%s%%{A}' % time.strftime('%H:%M:%S').encode()
-        # redraw()
-        time.sleep(1)
+    widgets['clock'] = b'%%{A:calendar:}%s%%{A}' % time.strftime('%H:%M:%S').encode()
 
+@schedule(2)
 def set_volume_info():
     global widgets
     widgets['volume_bar'] = progress(int(subprocess.check_output('amixer get Master | awk -F"[][]" \'/[.*?%]/{print $2}\' | head -1', shell=True).strip()[:-1]))
 
+@schedule(10)
 def set_brightness_info():
     global widgets
     brightness_val = 0
@@ -73,24 +88,24 @@ def set_brightness_info():
         state['brightness'] = brightness_val
     widgets['brightness_bar'] = progress(brightness_val, tot=MAX_BRIGHTNESS)
 
-def volume():
-    while True:
-        set_volume_info()
-        time.sleep(2)
+@schedule(600)
+def set_os_info():
+    global widgets
+    os_version = subprocess.check_output('uname -sr', shell=True).strip()
+    update_count = subprocess.check_output('pacman -Qu | wc -l', shell=True).strip()
+    widgets['os_info'] = '%s - %s Updates available' % (os_version, update_count)
+    if update_count > 0:
+        widgets['os'] = '%%{F#74A340}%s%%{F-}' % widgets['os_plain']
+    else:
+        widgets['os'] = widgets['os_plain']
 
-def brightness():
-    while True:
-        set_brightness_info()
-        time.sleep(10)
-
+@schedule(0.2)
 def wname():
     global widgets
-    while True:
-        while gtk.events_pending():
-            gtk.main_iteration()
-        time.sleep(0.2)
-        widgets['wname'] = screen.get_active_window().get_name()
-        redraw()
+    while gtk.events_pending():
+        gtk.main_iteration()
+    widgets['wname'] = screen.get_active_window().get_name()
+    redraw()
 
 def activate_temp_info(name):
     global temp_info_active, temp_info_mode, temp_info_item
@@ -143,6 +158,8 @@ def perform_action():
             set_volume_info()
             activate_temp_info('volume_bar')
             redraw()
+        elif action == 'volume_more':
+            subprocess.Popen('pavucontrol')
         elif action == 'brightness_show':
             activate_temp_info('brightness_bar')
         elif action == 'brightness_up':
@@ -155,10 +172,10 @@ def perform_action():
             set_brightness_info()
             activate_temp_info('brightness_bar')
             redraw()
+        elif action == 'os_show':
+            activate_temp_info('os_info')
+        elif action == 'update':
+            pass
 
-Thread(target=clock).start()
-Thread(target=wname).start()
-Thread(target=volume).start()
-Thread(target=brightness).start()
 Thread(target=perform_action).start()
 Thread(target=temp_info_counter).start()
