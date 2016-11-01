@@ -10,8 +10,12 @@ import traceback
 from collections import defaultdict
 from threading import Thread
 
-# Helpers
-def schedule(time_in_seconds):
+# Weather settings
+WEATHER_LOCATION = 'waterloo'
+WEATHER_URL = 'http://rss.accuweather.com/rss/liveweather_rss.asp?locCode=%s&metric=1' % WEATHER_LOCATION
+
+# Decorators
+def schedule(time_in_seconds=None):
     def _scheduled(func):
         def _run():
             while True:
@@ -20,9 +24,15 @@ def schedule(time_in_seconds):
                 except:
                     traceback.print_exc(file=sys.stderr)
                 time.sleep(time_in_seconds)
-        Thread(target=_run).start()
+
+        if time_in_seconds is not None:
+            Thread(target=_run).start()
+        else:
+            Thread(target=func).start()
+        return func
     return _scheduled
 
+# Brightness settings
 BRIGHT_FILE = '/sys/class/backlight/acpi_video0'
 MAX_BRIGHTNESS = 10
 with open(os.path.join(BRIGHT_FILE, 'max_brightness')) as f:
@@ -36,35 +46,40 @@ temp_info_active = False
 temp_info_item = None
 
 icons['volume_high'] = u'\uF028'
-icons['brightness_high'] = u'\uF185'
+icons['volume_low'] = u'\uF027'
+icons['volume_mute'] = u'%{F#F44242}\uF026%{F-}'
+icons['brightness_high'] = u'\uF0EB'
 icons['os'] = u'\uF17C'
+icons['weather'] = u'\uF0C2'
 
 widgets['volume'] = '%%{A:volume_more:}%%{A4:volume_up:}%%{A5:volume_down:}%%{A0:volume_show:}%s%%{A}%%{A}%%{A}%%{A}' % icons['volume_high']
 widgets['brightness'] = '%%{A4:brightness_up:}%%{A5:brightness_down:}%%{A0:brightness_show:}%s%%{A}%%{A}%%{A}' % icons['brightness_high']
 widgets['os_plain'] = '%%{A:update:}%%{A0:os_show:}%s%%{A}%%{A}' % icons['os']
 widgets['os'] = widgets['os_plain']
+widgets['weather'] = '%%{A:weather_open:}%%{A0:weather_show:}%s%%{A}%%{A}' % icons['weather']
 
 screen = wnck.screen_get_default()
 screen.force_update()
 
-bar_proc = subprocess.Popen('/home/nimesh/bar/lemonbar -b -g x20 -B#333 -f "Ubuntu Mono-8" -f "FontAwesome-8"',
+bar_proc = subprocess.Popen('/home/nimesh/bar/lemonbar -a 20 -b -g x20 -B#333 -f "Ubuntu Mono-8" -f "FontAwesome-8"',
         shell=True,
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE)
 
 #### Helpers ####
-def progress(val, tot=100, bars=50):
+def progress(val, tot=100, bars=50, name=''):
     progress = (u'\u2588'*(bars*val//tot)) + (' '*(bars-bars*val//tot))
-    return u'\uf0d9 %s \uf0da %d/%d' % (progress, val, tot)
+    return u'%s \uf0d9 %s \uf0da %d/%d' % (name, progress, val, tot)
 
 #### Scheduled function ####
 def redraw():
     info_panel_item = widgets['wname']
     if temp_info_active:
         info_panel_item = widgets[temp_info_item]
-    panel_str = u'%%{l} %s %%{r} %s \n' % (
+    panel_str = u'%%{l} %s %%{r} %s  %s \n' % (
                 info_panel_item,
-                ' '.join(widgets[x] for x in ('os', 'brightness', 'volume', 'clock'))
+                ' '.join(widgets[x] for x in ('weather', 'os', 'brightness', 'volume')),
+                widgets['clock']
             )
     bar_proc.stdin.write(panel_str.encode('utf-8'))
     bar_proc.stdin.flush()
@@ -77,7 +92,14 @@ def clock():
 @schedule(2)
 def set_volume_info():
     global widgets
-    widgets['volume_bar'] = progress(int(subprocess.check_output('amixer get Master | awk -F"[][]" \'/[.*?%]/{print $2}\' | head -1', shell=True).strip()[:-1]))
+    cur_volume = int(subprocess.check_output('amixer get Master | awk -F"[][]" \'/[.*?%]/{print $2}\' | head -1', shell=True).strip()[:-1])
+    cur_icon = icons['volume_high']
+    if cur_volume == 0:
+        cur_icon = icons['volume_mute']
+    elif cur_volume < 50:
+        cur_icon = icons['volume_low']
+    widgets['volume'] = '%%{A:volume_more:}%%{A4:volume_up:}%%{A5:volume_down:}%%{A0:volume_show:}%s%%{A}%%{A}%%{A}%%{A}' % cur_icon
+    widgets['volume_bar'] = progress(cur_volume, name='[Volume]')
 
 @schedule(10)
 def set_brightness_info():
@@ -86,26 +108,38 @@ def set_brightness_info():
     with open(os.path.join(BRIGHT_FILE, 'brightness')) as f:
         brightness_val = int(f.read().strip())
         state['brightness'] = brightness_val
-    widgets['brightness_bar'] = progress(brightness_val, tot=MAX_BRIGHTNESS)
+    widgets['brightness_bar'] = progress(brightness_val, tot=MAX_BRIGHTNESS, name='[Brightness]')
 
 @schedule(600)
 def set_os_info():
     global widgets
     os_version = subprocess.check_output('uname -sr', shell=True).strip()
-    update_count = subprocess.check_output('pacman -Qu | wc -l', shell=True).strip()
+    update_count = int(subprocess.check_output('pacman -Qu | wc -l', shell=True).strip())
     widgets['os_info'] = '%s - %s Updates available' % (os_version, update_count)
     if update_count > 0:
         widgets['os'] = '%%{F#74A340}%s%%{F-}' % widgets['os_plain']
     else:
         widgets['os'] = widgets['os_plain']
 
+@schedule(600)
+def set_weather_info():
+    widgets['weather_bar'] = '[Weather] ' + subprocess.check_output("curl --connect-timeout 15 -s '%s' | grep '<title>Currently' | sed -E 's/<.?title>//g' | sed 's/Currently://' | xargs" % WEATHER_URL, shell=True).strip()
+
 @schedule(0.2)
 def wname():
     global widgets
     while gtk.events_pending():
         gtk.main_iteration()
-    widgets['wname'] = screen.get_active_window().get_name()
+    try:
+        widgets['wname'] = screen.get_active_window().get_name()
+    except:
+        widgets['wname'] = 'Desktop'
+    widgets['wname'] = '%%{A:window_switcher:}%s%%{A}' % (widgets['wname'])
     redraw()
+
+@schedule(3600)
+def update_package_list():
+    subprocess.call("sudo pacman -Sy", shell=True)
 
 def activate_temp_info(name):
     global temp_info_active, temp_info_mode, temp_info_item
@@ -113,6 +147,7 @@ def activate_temp_info(name):
     temp_info_mode = True
     temp_info_item = name
 
+@schedule(None)
 def temp_info_counter():
     global temp_info_active, temp_info_mode
     counter = 0
@@ -140,6 +175,11 @@ def brightness_up():
 def brightness_down():
     subprocess.call('sudo tee "%s" <<< %d &>/dev/null' % (os.path.join(BRIGHT_FILE, 'brightness'), state['brightness']-1), shell=True)
 
+def update_packages():
+    subprocess.call("xterm -e 'sudo pacman -Syu; echo Press any key to continue... && read -n 1'", shell=True)
+    set_os_info()
+
+@schedule(None)
 def perform_action():
     global temp_info_mode
     while True:
@@ -175,7 +215,10 @@ def perform_action():
         elif action == 'os_show':
             activate_temp_info('os_info')
         elif action == 'update':
-            pass
-
-Thread(target=perform_action).start()
-Thread(target=temp_info_counter).start()
+            Thread(target=update_packages).start()
+        elif action == 'window_switcher':
+            subprocess.Popen('rofi -show window', shell=True)
+        elif action == 'weather_show':
+            activate_temp_info('weather_bar')
+        elif action == 'weather_open':
+            subprocess.Popen('xdg-open %s' % WEATHER_URL, shell=True)
