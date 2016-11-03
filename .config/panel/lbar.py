@@ -52,18 +52,25 @@ temp_info_mode = False
 temp_info_active = False
 temp_info_item = None
 
-icons['volume_high'] = u'\uF028'
-icons['volume_low'] = u'\uF027'
-icons['volume_mute'] = u'%{F#F44242}\uF026%{F-}'
-icons['brightness_high'] = u'\uF0EB'
-icons['os'] = u'\uF17C'
-icons['weather'] = u'\uF0C2'
+icons = {
+        'volume_high'       : u'\uF028',
+        'volume_low'        : u'\uF027',
+        'volume_mute'       : u'%{F#F44242}\uF026%{F-}',
+        'brightness_high'   : u'\uF0EB',
+        'os'                : u'\uF17C',
+        'weather'           : u'\uF0C2',
+        'play'              : u'\uf04b',
+        'pause'             : u'\uf04c',
+        'next'              : u'\uf051',
+        'prev'              : u'\uf048',
+    }
 
 widgets['volume'] = '%%{A:volume_more:}%%{A4:volume_up:}%%{A5:volume_down:}%%{A0:volume_show:}%s%%{A}%%{A}%%{A}%%{A}' % icons['volume_high']
 widgets['brightness'] = '%%{A4:brightness_up:}%%{A5:brightness_down:}%%{A0:brightness_show:}%s%%{A}%%{A}%%{A}' % icons['brightness_high']
 widgets['os_plain'] = '%%{A:update:}%%{A0:os_show:}%s%%{A}%%{A}' % icons['os']
 widgets['os'] = widgets['os_plain']
 widgets['weather'] = '%%{A:weather_open:}%%{A0:weather_show:}%s%%{A}%%{A}' % icons['weather']
+widgets['music'] = '%%{B#f2bb6f}%%{F#000} %s   %s   %s %%{F-}%%{B-}' % (icons['prev'], icons['play'], icons['next'])
 
 screen = wnck.screen_get_default()
 screen.force_update()
@@ -83,12 +90,13 @@ def redraw():
     info_panel_item = widgets['sys_stat']
     if temp_info_active:
         info_panel_item = widgets[temp_info_item]
-    panel_str = u'%%{B%s}%%{l} %s %%{c} %s %%{r} %s  %s \n' % (
-                '#333' if widgets['ac_power'] else '#533',
-                widgets['wname'],
-                info_panel_item,
-                ' '.join(widgets[x] for x in ('weather', 'os', 'brightness', 'volume')),
-                widgets['clock']
+    panel_str = u'%%{B%s}%%{l} %s %%{c} %s %%{r} %s  %s  %s \n' % (
+            '#333' if widgets['ac_power'] else '#533',
+            widgets['wname'],
+            info_panel_item,
+            widgets['music'],
+            ' '.join(widgets[x] for x in ('weather', 'os', 'brightness', 'volume')),
+            widgets['clock']
             )
     bar_proc.stdin.write(panel_str.encode('utf-8'))
     bar_proc.stdin.flush()
@@ -143,7 +151,7 @@ def set_weather_info():
 @schedule(1)
 def set_sys_stat():
     vmem = psutil.virtual_memory()
-    widgets['sys_stat'] = '%2.0f%% | %.2fGB (%2.0f%%)' % (psutil.cpu_percent(), vmem.used / float(2**30), vmem.percent )
+    widgets['sys_stat'] = '%%{A:system_status:}%2.0f%% | %.2fGB (%2.0f%%)%%{A}' % (psutil.cpu_percent(), vmem.used / float(2**30), vmem.percent )
 
 @schedule(0.2)
 def wname():
@@ -242,3 +250,5 @@ def perform_action():
             activate_temp_info('weather_bar')
         elif action == 'weather_open':
             subprocess.Popen('xdg-open %s' % WEATHER_URL, shell=True)
+        elif action == 'system_status':
+            subprocess.Popen('gnome-system-monitor')
