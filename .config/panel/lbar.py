@@ -7,6 +7,7 @@ import gtk
 import sys
 import os
 import traceback
+import psutil
 from collections import defaultdict
 from threading import Thread
 
@@ -70,10 +71,6 @@ screen.force_update()
 bar_proc = subprocess.Popen('lemonbar -a 20 -b -g x20 -B#333 -f "Ubuntu Mono-8" -f "FontAwesome-8"',
         shell=True,
         stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE)
-
-conky_proc = subprocess.Popen('conky -c "%s" -u 1.5' % os.path.join(CUR_DIR, 'conky.rc'),
-        shell=True,
         stdout=subprocess.PIPE)
 
 #### Helpers ####
@@ -145,7 +142,8 @@ def set_weather_info():
 
 @schedule(1)
 def set_sys_stat():
-    widgets['sys_stat'] = conky_proc.stdout.readline().strip()
+    vmem = psutil.virtual_memory()
+    widgets['sys_stat'] = '%2.0f%% | %.2fGB (%2.0f%%)' % (psutil.cpu_percent(), vmem.used / float(2**30), vmem.percent )
 
 @schedule(0.2)
 def wname():
