@@ -14,6 +14,8 @@ from threading import Thread
 WEATHER_LOCATION = 'waterloo'
 WEATHER_URL = 'http://rss.accuweather.com/rss/liveweather_rss.asp?locCode=%s&metric=1' % WEATHER_LOCATION
 
+CUR_DIR = os.path.dirname(os.path.abspath(__file__))
+
 # Decorators
 def schedule(time_in_seconds=None):
     def _scheduled(func):
@@ -38,6 +40,10 @@ MAX_BRIGHTNESS = 10
 with open(os.path.join(BRIGHT_FILE, 'max_brightness')) as f:
     MAX_BRIGHTNESS = int(f.read().strip())
 
+# Power supply settings
+POWER_DIRECTORY='/sys/class/power_supply/ACAD'
+AC_POWER_FILE = os.path.join(POWER_DIRECTORY, 'online')
+
 icons = defaultdict(str)
 widgets = defaultdict(str)
 state = {}
@@ -61,9 +67,13 @@ widgets['weather'] = '%%{A:weather_open:}%%{A0:weather_show:}%s%%{A}%%{A}' % ico
 screen = wnck.screen_get_default()
 screen.force_update()
 
-bar_proc = subprocess.Popen('/home/nimesh/bar/lemonbar -a 20 -b -g x20 -B#333 -f "Ubuntu Mono-8" -f "FontAwesome-8"',
+bar_proc = subprocess.Popen('lemonbar -a 20 -b -g x20 -B#333 -f "Ubuntu Mono-8" -f "FontAwesome-8"',
         shell=True,
         stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE)
+
+conky_proc = subprocess.Popen('conky -c "%s" -u 1.5' % os.path.join(CUR_DIR, 'conky.rc'),
+        shell=True,
         stdout=subprocess.PIPE)
 
 #### Helpers ####
@@ -73,10 +83,12 @@ def progress(val, tot=100, bars=50, name=''):
 
 #### Scheduled function ####
 def redraw():
-    info_panel_item = widgets['wname']
+    info_panel_item = widgets['sys_stat']
     if temp_info_active:
         info_panel_item = widgets[temp_info_item]
-    panel_str = u'%%{l} %s %%{r} %s  %s \n' % (
+    panel_str = u'%%{B%s}%%{l} %s %%{c} %s %%{r} %s  %s \n' % (
+                '#333' if widgets['ac_power'] else '#533',
+                widgets['wname'],
                 info_panel_item,
                 ' '.join(widgets[x] for x in ('weather', 'os', 'brightness', 'volume')),
                 widgets['clock']
@@ -101,6 +113,12 @@ def set_volume_info():
     widgets['volume'] = '%%{A:volume_more:}%%{A4:volume_up:}%%{A5:volume_down:}%%{A0:volume_show:}%s%%{A}%%{A}%%{A}%%{A}' % cur_icon
     widgets['volume_bar'] = progress(cur_volume, name='[Volume]')
 
+@schedule(1)
+def set_ac_power():
+    global widgets
+    with open(AC_POWER_FILE) as f:
+        widgets['ac_power'] = f.read().strip() != '0'
+
 @schedule(10)
 def set_brightness_info():
     global widgets
@@ -124,6 +142,10 @@ def set_os_info():
 @schedule(600)
 def set_weather_info():
     widgets['weather_bar'] = '[Weather] ' + subprocess.check_output("curl --connect-timeout 15 -s '%s' | grep '<title>Currently' | sed -E 's/<.?title>//g' | sed 's/Currently://' | xargs" % WEATHER_URL, shell=True).strip()
+
+@schedule(1)
+def set_sys_stat():
+    widgets['sys_stat'] = conky_proc.stdout.readline().strip()
 
 @schedule(0.2)
 def wname():
