@@ -11,6 +11,14 @@ import psutil
 from collections import defaultdict
 from threading import Thread
 
+# COLORS
+BACKGROUND = '#141311'
+FOREGROUND = '#686766'
+bar_proc = subprocess.Popen('lemonbar -a 20 -b -g x25 -B%s -F%s -f "Ubuntu Mono-9" -f "FontAwesome-9"' % (BACKGROUND, FOREGROUND),
+        shell=True,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE)
+
 # Weather settings
 WEATHER_LOCATION = 'waterloo'
 WEATHER_URL = 'http://rss.accuweather.com/rss/liveweather_rss.asp?locCode=%s&metric=1' % WEATHER_LOCATION
@@ -63,6 +71,7 @@ icons = {
         'pause'             : u'\uf04c',
         'next'              : u'\uf051',
         'prev'              : u'\uf048',
+        'music'             : u'%{T2}\uf001%{T-}',
     }
 
 widgets['volume'] = '%%{A:volume_more:}%%{A4:volume_up:}%%{A5:volume_down:}%%{A0:volume_show:}%s%%{A}%%{A}%%{A}%%{A}' % icons['volume_high']
@@ -70,18 +79,14 @@ widgets['brightness'] = '%%{A4:brightness_up:}%%{A5:brightness_down:}%%{A0:brigh
 widgets['os_plain'] = '%%{A:update:}%%{A0:os_show:}%s%%{A}%%{A}' % icons['os']
 widgets['os'] = widgets['os_plain']
 widgets['weather'] = '%%{A:weather_open:}%%{A0:weather_show:}%s%%{A}%%{A}' % icons['weather']
-widgets['music'] = '%%{B#f2bb6f}%%{F#000} %s   %s   %s %%{F-}%%{B-}' % (icons['prev'], icons['play'], icons['next'])
+widgets['music'] = '%%{A:music_open:}  %s  %%{A} %s   %s   %s  ' % (icons['music'], icons['prev'], icons['play'], icons['next'])
 
 screen = wnck.screen_get_default()
 screen.force_update()
 
-bar_proc = subprocess.Popen('lemonbar -a 20 -b -g x20 -B#333 -f "Ubuntu Mono-8" -f "FontAwesome-8"',
-        shell=True,
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE)
 
 #### Helpers ####
-def progress(val, tot=100, bars=50, name=''):
+def progress(val, tot=100, bars=40, name=''):
     progress = (u'\u2588'*(bars*val//tot)) + (' '*(bars-bars*val//tot))
     return u'%s \uf0d9 %s \uf0da %d/%d' % (name, progress, val, tot)
 
@@ -90,8 +95,8 @@ def redraw():
     info_panel_item = widgets['sys_stat']
     if temp_info_active:
         info_panel_item = widgets[temp_info_item]
-    panel_str = u'%%{B%s}%%{l} %s %%{c} %s %%{r} %s  %s  %s \n' % (
-            '#333' if widgets['ac_power'] else '#533',
+    panel_str = u'%%{B%s}%%{l} %s %%{c} %s %%{r} %%{R}%s%%{R}  %s  %%{R} %s %%{R}\n' % (
+            BACKGROUND if widgets['ac_power'] else '#533',
             widgets['wname'],
             info_panel_item,
             widgets['music'],
@@ -140,7 +145,7 @@ def set_os_info():
     update_count = int(subprocess.check_output('pacman -Qu | wc -l', shell=True).strip())
     widgets['os_info'] = '%s - %s Updates available' % (os_version, update_count)
     if update_count > 0:
-        widgets['os'] = '%%{F#74A340}%s%%{F-}' % widgets['os_plain']
+        widgets['os'] = '%%{F%s}%s%%{F-}' % ('#900', widgets['os_plain'])
     else:
         widgets['os'] = widgets['os_plain']
 
@@ -252,3 +257,5 @@ def perform_action():
             subprocess.Popen('xdg-open %s' % WEATHER_URL, shell=True)
         elif action == 'system_status':
             subprocess.Popen('gnome-system-monitor')
+        elif action == 'music_open':
+            subprocess.Popen('clementine')
