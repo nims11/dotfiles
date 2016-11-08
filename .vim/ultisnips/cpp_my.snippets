@@ -250,7 +250,7 @@ struct LogCache {
 LogCache::LogCache(){
 	int curr = 2;
 	LOG2[1] = 0;
-	for(int i = 2; i<=100001;i++){
+	for(int i = 2; i<MAXN;i++){
 		if(i == curr){
 			curr <<= 1;
 			LOG2[i] = LOG2[i-1] + 1;

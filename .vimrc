@@ -34,7 +34,7 @@ set number                    " Show line numbers
 set relativenumber            " Make the line numbers relative to current position
 syntax enable                 " Enable syntax highlighting
 set t_Co=256                  " Force 256 colors
-colorscheme CandyPaper
+colorscheme desert256
 set cursorline                " Highlight current cursorline
 set incsearch                 " Enable incremental search (Start searching while typing the search keyword)
 

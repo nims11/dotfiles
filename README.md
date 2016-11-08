@@ -1,0 +1,5 @@
+- pacman -S tmux git neovim python2-neovim python-neovim pkg-config make fakeroot powerline-fonts gcc clang gsimpelcal python2-wnck alsa-utils pavucontrol rofi python2-psutil psutils evince ttf-ubuntu-font-family
+- yaourt -S ttf-font-awesome
+- install tpm and vim-plug
+- install lemonbar https://github.com/nims11/bar
+- https://github.com/powerline/fonts.git
