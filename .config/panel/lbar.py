@@ -11,10 +11,12 @@ import psutil
 from collections import defaultdict
 from threading import Thread
 
-# COLORS
-BACKGROUND = '#141311'
-FOREGROUND = '#686766'
-bar_proc = subprocess.Popen('lemonbar -a 20 -b -g x25 -B%s -F%s -f "Ubuntu Mono-9" -f "FontAwesome-9"' % (BACKGROUND, FOREGROUND),
+CUR_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Launch lemonbar
+BACKGROUND = '#EE141311'
+FOREGROUND = '#EE686766'
+bar_proc = subprocess.Popen('lemonbar -a 30 -b -g x25 -B%s -F%s -f "Ubuntu Mono-9" -f "FontAwesome-9"' % (BACKGROUND, FOREGROUND),
         shell=True,
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE)
@@ -23,7 +25,8 @@ bar_proc = subprocess.Popen('lemonbar -a 20 -b -g x25 -B%s -F%s -f "Ubuntu Mono-
 WEATHER_LOCATION = 'waterloo'
 WEATHER_URL = 'http://rss.accuweather.com/rss/liveweather_rss.asp?locCode=%s&metric=1' % WEATHER_LOCATION
 
-CUR_DIR = os.path.dirname(os.path.abspath(__file__))
+# Window Widget
+ACTIVE_WIN_MAX_LEN = 60
 
 # Decorators
 def schedule(time_in_seconds=None):
@@ -66,20 +69,33 @@ icons = {
         'volume_mute'       : u'%{F#F44242}\uF026%{F-}',
         'brightness_high'   : u'\uF0EB',
         'os'                : u'\uF17C',
-        'weather'           : u'\uF0C2',
+        'weather'           : u'\uF2CB',
         'play'              : u'\uf04b',
         'pause'             : u'\uf04c',
         'next'              : u'\uf051',
         'prev'              : u'\uf048',
         'music'             : u'%{T2}\uf001%{T-}',
+        'power'             : u'%{T2}\uf011%{T-}',
     }
+
+power_commands = {
+        'Shutdown': 'systemctl poweroff',
+        'Reboot': 'systemctl reboot',
+        'Suspend': 'systemctl suspend',
+        'Hibernate': 'systemctl hibernate',
+        'Lock Screen': 'slimlock'
+    }
+power_options_order = ['Shutdown', 'Reboot', 'Suspend', 'Hibernate', 'Lock Screen']
 
 widgets['volume'] = '%%{A:volume_more:}%%{A4:volume_up:}%%{A5:volume_down:}%%{A0:volume_show:}%s%%{A}%%{A}%%{A}%%{A}' % icons['volume_high']
 widgets['brightness'] = '%%{A4:brightness_up:}%%{A5:brightness_down:}%%{A0:brightness_show:}%s%%{A}%%{A}%%{A}' % icons['brightness_high']
 widgets['os_plain'] = '%%{A:update:}%%{A0:os_show:}%s%%{A}%%{A}' % icons['os']
 widgets['os'] = widgets['os_plain']
 widgets['weather'] = '%%{A:weather_open:}%%{A0:weather_show:}%s%%{A}%%{A}' % icons['weather']
-widgets['music'] = '%%{A:music_open:}  %s  %%{A} %s   %s   %s  ' % (icons['music'], icons['prev'], icons['play'], icons['next'])
+widgets['music'] = '%%{A0:music_show:}%%{A:music_open:}  %s  %%{A} %%{A:music_prev:}%s%%{A}   %%{A:music_toggle:}%s%%{A}   %%{A:music_next:}%s%%{A}  %%{A}' % (icons['music'], icons['prev'], icons['play'], icons['next'])
+widgets['power'] = '%%{A0:power_show:}%%{A3:power_next:}%%{A:power_select:}%s%%{A}%%{A}%%{A}' % (icons['power'])
+widgets['power_help'] = '[Power Options] Right Click To Navigate, Left Click To Select'
+widgets['cur_power_selection'] = ''
 
 screen = wnck.screen_get_default()
 screen.force_update()
@@ -94,13 +110,13 @@ def progress(val, tot=100, bars=40, name=''):
 def redraw():
     info_panel_item = widgets['sys_stat']
     if temp_info_active:
-        info_panel_item = widgets[temp_info_item]
+        info_panel_item = widgets.get(temp_info_item, '')
     panel_str = u'%%{B%s}%%{l} %s %%{c} %s %%{r} %%{R}%s%%{R}  %s  %%{R} %s %%{R}\n' % (
-            BACKGROUND if widgets['ac_power'] else '#533',
+            BACKGROUND if widgets['ac_power'] else '#500',
             widgets['wname'],
             info_panel_item,
             widgets['music'],
-            ' '.join(widgets[x] for x in ('weather', 'os', 'brightness', 'volume')),
+            ' '.join(widgets[x] for x in ('weather', 'os', 'brightness', 'volume', 'power')),
             widgets['clock']
             )
     bar_proc.stdin.write(panel_str.encode('utf-8'))
@@ -109,7 +125,7 @@ def redraw():
 @schedule(1)
 def clock():
     global widgets
-    widgets['clock'] = b'%%{A:calendar:}%s%%{A}' % time.strftime('%H:%M:%S').encode()
+    widgets['clock'] = b'%%{A0:date_show:}%%{A:calendar:}%s%%{A}%%{A}' % time.strftime('%H:%M:%S').encode()
 
 @schedule(2)
 def set_volume_info():
@@ -145,7 +161,7 @@ def set_os_info():
     update_count = int(subprocess.check_output('pacman -Qu | wc -l', shell=True).strip())
     widgets['os_info'] = '%s - %s Updates available' % (os_version, update_count)
     if update_count > 0:
-        widgets['os'] = '%%{F%s}%s%%{F-}' % ('#900', widgets['os_plain'])
+        widgets['os'] = '%%{F%s}%s%%{F-}' % ('#8E7', widgets['os_plain'])
     else:
         widgets['os'] = widgets['os_plain']
 
@@ -156,7 +172,52 @@ def set_weather_info():
 @schedule(1)
 def set_sys_stat():
     vmem = psutil.virtual_memory()
-    widgets['sys_stat'] = '%%{A:system_status:}%2.0f%% | %.2fGB (%2.0f%%)%%{A}' % (psutil.cpu_percent(), vmem.used / float(2**30), vmem.percent )
+    widgets['sys_stat'] = '%%{A:system_status:}[CPU] %2.0f%% | [MEM] %.2fGB (%2.0f%%)%%{A}' % (psutil.cpu_percent(), vmem.used / float(2**30), vmem.percent )
+
+import dbus
+
+session_bus = dbus.SessionBus()
+
+def get_clementine_status():
+    try:
+        player = session_bus.get_object('org.mpris.clementine', '/Player')
+        iface = dbus.Interface(player, dbus_interface='org.freedesktop.MediaPlayer')
+        metadata = iface.GetMetadata()
+        cur_playing = metadata.get('title', '') + ' - ' + metadata.get('artist', '')
+        if cur_playing == ' - ':
+            cur_playing = 'Not Playing'
+        status = iface.GetStatus().index(0)
+        running = True
+    except:
+        cur_playing = 'Not Playing'
+        status = 1
+        running = True
+        iface = None
+    return status, cur_playing, iface
+
+@schedule(2)
+def music():
+    status, cur_playing, _ = get_clementine_status()
+    widgets['cur_playing'] = cur_playing
+    widgets['music'] = '%%{A0:music_show:}%%{A:music_open:}  %s  %%{A}%%{A:music_prev:} %s %%{A} %%{A:music_toggle:} %s %%{A} %%{A:music_next:} %s %%{A} %%{A}' % (icons['music'], icons['prev'], icons['play'] if status != 0 else icons['pause'], icons['next'])
+
+def music_toggle():
+    status, cur_playing, iface = get_clementine_status()
+    if iface is None:
+        subprocess.Popen('clementine')
+    elif status == 1:
+        iface.Play()
+    else:
+        iface.Pause()
+
+def music_next(prev=False):
+    status, cur_playing, iface = get_clementine_status()
+    if iface is None:
+        subprocess.Popen('clementine')
+    elif prev:
+        iface.Prev()
+    else:
+        iface.Next()
 
 @schedule(0.2)
 def wname():
@@ -164,10 +225,12 @@ def wname():
     while gtk.events_pending():
         gtk.main_iteration()
     try:
-        widgets['wname'] = screen.get_active_window().get_name()
+        active_window = screen.get_active_window().get_name()
     except:
-        widgets['wname'] = 'Desktop'
-    widgets['wname'] = '%%{A:window_switcher:}%s%%{A}' % (widgets['wname'])
+        active_window = 'Desktop'
+    if len(active_window) > ACTIVE_WIN_MAX_LEN:
+        active_window = active_window[:ACTIVE_WIN_MAX_LEN] + '...'
+    widgets['wname'] = '%%{A:window_switcher:}%s%%{A}' % (active_window)
     redraw()
 
 @schedule(3600)
@@ -259,3 +322,32 @@ def perform_action():
             subprocess.Popen('gnome-system-monitor')
         elif action == 'music_open':
             subprocess.Popen('clementine')
+        elif action == 'power_show':
+            if not temp_info_active or temp_info_item != 'cur_power_selection':
+                widgets['cur_power_selection'] = widgets['power_help']
+            activate_temp_info('cur_power_selection')
+        elif action == 'power_next':
+            cur_selection = widgets['cur_power_selection']
+            cur_idx = power_options_order.index(cur_selection) \
+                    if cur_selection in power_options_order else -1
+            next_idx = (cur_idx + 1) % len(power_options_order)
+            widgets['cur_power_selection'] = power_options_order[next_idx]
+            activate_temp_info('cur_power_selection')
+            redraw()
+        elif action == 'power_select':
+            if temp_info_active and temp_info_item == 'cur_power_selection' and widgets['cur_power_selection'] in power_commands:
+                subprocess.Popen(power_commands[widgets['cur_power_selection']], shell=True)
+        elif action == 'date_show':
+            widgets['date_info'] = time.strftime('%A, %d %B %Y')
+            activate_temp_info('date_info')
+        elif action == 'music_show':
+            activate_temp_info('cur_playing')
+        elif action == 'music_toggle':
+            music_toggle()
+            music()
+        elif action == 'music_prev':
+            music_next(True)
+            music()
+        elif action == 'music_next':
+            music_next()
+            music()
