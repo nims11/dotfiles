@@ -1,29 +1,32 @@
 #!/usr/bin/python2
 from __future__ import print_function
-import subprocess
-import time
-import wnck
-import gtk
 import sys
 import os
 import traceback
-import psutil
+import subprocess
+import time
 from collections import defaultdict
 from threading import Thread
+import wnck
+import gtk
+import psutil
 
 CUR_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Launch lemonbar
 BACKGROUND = '#EE141311'
 FOREGROUND = '#EE686766'
-bar_proc = subprocess.Popen('lemonbar -a 30 -b -g x25 -B%s -F%s -f "Ubuntu Mono-9" -f "FontAwesome-9"' % (BACKGROUND, FOREGROUND),
-        shell=True,
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE)
+BAR_PROC = subprocess.Popen(
+    'lemonbar -a 30 -b -g x25 -B%s -F%s -f "Ubuntu Mono-9" -f "FontAwesome-9"' \
+    % (BACKGROUND, FOREGROUND),
+    shell=True,
+    stdin=subprocess.PIPE,
+    stdout=subprocess.PIPE)
 
 # Weather settings
 WEATHER_LOCATION = 'waterloo'
-WEATHER_URL = 'http://rss.accuweather.com/rss/liveweather_rss.asp?locCode=%s&metric=1' % WEATHER_LOCATION
+WEATHER_URL = 'http://rss.accuweather.com/rss/liveweather_rss.asp?locCode=%s&metric=1'\
+    % WEATHER_LOCATION
 
 # Window Widget
 ACTIVE_WIN_MAX_LEN = 60
@@ -53,49 +56,49 @@ with open(os.path.join(BRIGHT_FILE, 'max_brightness')) as f:
     MAX_BRIGHTNESS = int(f.read().strip())
 
 # Power supply settings
-POWER_DIRECTORY='/sys/class/power_supply/ACAD'
+POWER_DIRECTORY = '/sys/class/power_supply/ACAD'
 AC_POWER_FILE = os.path.join(POWER_DIRECTORY, 'online')
 
-icons = defaultdict(str)
-widgets = defaultdict(str)
-state = {}
+WIDGETS = defaultdict(str)
+STATE = {}
 temp_info_mode = False
 temp_info_active = False
 temp_info_item = None
 
-icons = {
-        'volume_high'       : u'\uF028',
-        'volume_low'        : u'\uF027',
-        'volume_mute'       : u'%{F#F44242}\uF026%{F-}',
-        'brightness_high'   : u'\uF0EB',
-        'os'                : u'\uF17C',
-        'weather'           : u'\uF2CB',
-        'play'              : u'\uf04b',
-        'pause'             : u'\uf04c',
-        'next'              : u'\uf051',
-        'prev'              : u'\uf048',
-        'music'             : u'%{T2}\uf001%{T-}',
-        'power'             : u'%{T2}\uf011%{T-}',
+ICONS = {
+    'volume_high'       : u'\uF028',
+    'volume_low'        : u'\uF027',
+    'volume_mute'       : u'%{F#F44242}\uF026%{F-}',
+    'brightness_high'   : u'\uF0EB',
+    'os'                : u'\uF17C',
+    'weather'           : u'\uF2CB',
+    'play'              : u'\uf04b',
+    'pause'             : u'\uf04c',
+    'next'              : u'\uf051',
+    'prev'              : u'\uf048',
+    'music'             : u'%{T2}\uf001%{T-}',
+    'power'             : u'%{T2}\uf011%{T-}',
     }
 
-power_commands = {
-        'Shutdown': 'systemctl poweroff',
-        'Reboot': 'systemctl reboot',
-        'Suspend': 'systemctl suspend',
-        'Hibernate': 'systemctl hibernate',
-        'Lock Screen': 'slimlock'
+POWER_COMMANDS = {
+    'Shutdown': 'systemctl poweroff',
+    'Reboot': 'systemctl reboot',
+    'Suspend': 'systemctl suspend',
+    'Hibernate': 'systemctl hibernate',
+    'Lock Screen': 'slimlock'
     }
-power_options_order = ['Shutdown', 'Reboot', 'Suspend', 'Hibernate', 'Lock Screen']
 
-widgets['volume'] = '%%{A:volume_more:}%%{A4:volume_up:}%%{A5:volume_down:}%%{A0:volume_show:}%s%%{A}%%{A}%%{A}%%{A}' % icons['volume_high']
-widgets['brightness'] = '%%{A4:brightness_up:}%%{A5:brightness_down:}%%{A0:brightness_show:}%s%%{A}%%{A}%%{A}' % icons['brightness_high']
-widgets['os_plain'] = '%%{A:update:}%%{A0:os_show:}%s%%{A}%%{A}' % icons['os']
-widgets['os'] = widgets['os_plain']
-widgets['weather'] = '%%{A:weather_open:}%%{A0:weather_show:}%s%%{A}%%{A}' % icons['weather']
-widgets['music'] = '%%{A0:music_show:}%%{A:music_open:}  %s  %%{A} %%{A:music_prev:}%s%%{A}   %%{A:music_toggle:}%s%%{A}   %%{A:music_next:}%s%%{A}  %%{A}' % (icons['music'], icons['prev'], icons['play'], icons['next'])
-widgets['power'] = '%%{A0:power_show:}%%{A3:power_next:}%%{A:power_select:}%s%%{A}%%{A}%%{A}' % (icons['power'])
-widgets['power_help'] = '[Power Options] Right Click To Navigate, Left Click To Select'
-widgets['cur_power_selection'] = ''
+POWER_OPTIONS_ORDER = ['Shutdown', 'Reboot', 'Suspend', 'Hibernate', 'Lock Screen']
+
+WIDGETS['volume'] = '%%{A:volume_more:}%%{A4:volume_up:}%%{A5:volume_down:}%%{A0:volume_show:}%s%%{A}%%{A}%%{A}%%{A}' % ICONS['volume_high']
+WIDGETS['brightness'] = '%%{A4:brightness_up:}%%{A5:brightness_down:}%%{A0:brightness_show:}%s%%{A}%%{A}%%{A}' % ICONS['brightness_high']
+WIDGETS['os_plain'] = '%%{A:update:}%%{A0:os_show:}%s%%{A}%%{A}' % ICONS['os']
+WIDGETS['os'] = WIDGETS['os_plain']
+WIDGETS['weather'] = '%%{A:weather_open:}%%{A0:weather_show:}%s%%{A}%%{A}' % ICONS['weather']
+WIDGETS['music'] = '%%{A0:music_show:}%%{A:music_open:}  %s  %%{A} %%{A:music_prev:}%s%%{A}   %%{A:music_toggle:}%s%%{A}   %%{A:music_next:}%s%%{A}  %%{A}' % (ICONS['music'], ICONS['prev'], ICONS['play'], ICONS['next'])
+WIDGETS['power'] = '%%{A0:power_show:}%%{A3:power_next:}%%{A:power_select:}%s%%{A}%%{A}%%{A}' % (ICONS['power'])
+WIDGETS['power_help'] = '[Power Options] Right Click To Navigate, Left Click To Select'
+WIDGETS['cur_power_selection'] = ''
 
 screen = wnck.screen_get_default()
 screen.force_update()
@@ -108,71 +111,71 @@ def progress(val, tot=100, bars=40, name=''):
 
 #### Scheduled function ####
 def redraw():
-    info_panel_item = widgets['sys_stat']
+    info_panel_item = WIDGETS['sys_stat']
     if temp_info_active:
-        info_panel_item = widgets.get(temp_info_item, '')
+        info_panel_item = WIDGETS.get(temp_info_item, '')
     panel_str = u'%%{B%s}%%{l} %s %%{c} %s %%{r} %%{R}%s%%{R}  %s  %%{R} %s %%{R}\n' % (
-            BACKGROUND if widgets['ac_power'] else '#500',
-            widgets['wname'],
+            BACKGROUND if WIDGETS['ac_power'] else '#500',
+            WIDGETS['wname'],
             info_panel_item,
-            widgets['music'],
-            ' '.join(widgets[x] for x in ('weather', 'os', 'brightness', 'volume', 'power')),
-            widgets['clock']
+            WIDGETS['music'],
+            ' '.join(WIDGETS[x] for x in ('weather', 'os', 'brightness', 'volume', 'power')),
+            WIDGETS['clock']
             )
-    bar_proc.stdin.write(panel_str.encode('utf-8'))
-    bar_proc.stdin.flush()
+    BAR_PROC.stdin.write(panel_str.encode('utf-8'))
+    BAR_PROC.stdin.flush()
 
 @schedule(1)
 def clock():
-    global widgets
-    widgets['clock'] = b'%%{A0:date_show:}%%{A:calendar:}%s%%{A}%%{A}' % time.strftime('%H:%M:%S').encode()
+    global WIDGETS
+    WIDGETS['clock'] = b'%%{A0:date_show:}%%{A:calendar:}%s%%{A}%%{A}' % time.strftime('%H:%M:%S').encode()
 
 @schedule(2)
 def set_volume_info():
-    global widgets
+    global WIDGETS
     cur_volume = int(subprocess.check_output('amixer get Master | awk -F"[][]" \'/[.*?%]/{print $2}\' | head -1', shell=True).strip()[:-1])
-    cur_icon = icons['volume_high']
+    cur_icon = ICONS['volume_high']
     if cur_volume == 0:
-        cur_icon = icons['volume_mute']
+        cur_icon = ICONS['volume_mute']
     elif cur_volume < 50:
-        cur_icon = icons['volume_low']
-    widgets['volume'] = '%%{A:volume_more:}%%{A4:volume_up:}%%{A5:volume_down:}%%{A0:volume_show:}%s%%{A}%%{A}%%{A}%%{A}' % cur_icon
-    widgets['volume_bar'] = progress(cur_volume, name='[Volume]')
+        cur_icon = ICONS['volume_low']
+    WIDGETS['volume'] = '%%{A:volume_more:}%%{A4:volume_up:}%%{A5:volume_down:}%%{A0:volume_show:}%s%%{A}%%{A}%%{A}%%{A}' % cur_icon
+    WIDGETS['volume_bar'] = progress(cur_volume, name='[Volume]')
 
 @schedule(1)
 def set_ac_power():
-    global widgets
+    global WIDGETS
     with open(AC_POWER_FILE) as f:
-        widgets['ac_power'] = f.read().strip() != '0'
+        WIDGETS['ac_power'] = f.read().strip() != '0'
 
 @schedule(10)
 def set_brightness_info():
-    global widgets
+    global WIDGETS
     brightness_val = 0
     with open(os.path.join(BRIGHT_FILE, 'brightness')) as f:
         brightness_val = int(f.read().strip())
-        state['brightness'] = brightness_val
-    widgets['brightness_bar'] = progress(brightness_val, tot=MAX_BRIGHTNESS, name='[Brightness]')
+        STATE['brightness'] = brightness_val
+    WIDGETS['brightness_bar'] = progress(brightness_val, tot=MAX_BRIGHTNESS, name='[Brightness]')
 
 @schedule(600)
 def set_os_info():
-    global widgets
+    global WIDGETS
     os_version = subprocess.check_output('uname -sr', shell=True).strip()
     update_count = int(subprocess.check_output('pacman -Qu | wc -l', shell=True).strip())
-    widgets['os_info'] = '%s - %s Updates available' % (os_version, update_count)
+    WIDGETS['os_info'] = '%s - %s Updates available' % (os_version, update_count)
     if update_count > 0:
-        widgets['os'] = '%%{F%s}%s%%{F-}' % ('#8E7', widgets['os_plain'])
+        WIDGETS['os'] = '%%{F%s}%s%%{F-}' % ('#8E7', WIDGETS['os_plain'])
     else:
-        widgets['os'] = widgets['os_plain']
+        WIDGETS['os'] = WIDGETS['os_plain']
 
 @schedule(600)
 def set_weather_info():
-    widgets['weather_bar'] = '[Weather] ' + subprocess.check_output("curl --connect-timeout 15 -s '%s' | grep '<title>Currently' | sed -E 's/<.?title>//g' | sed 's/Currently://' | xargs" % WEATHER_URL, shell=True).strip()
+    WIDGETS['weather_bar'] = '[Weather] ' + subprocess.check_output("curl --connect-timeout 15 -s '%s' | grep '<title>Currently' | sed -E 's/<.?title>//g' | sed 's/Currently://' | xargs" % WEATHER_URL, shell=True).strip()
 
 @schedule(1)
 def set_sys_stat():
     vmem = psutil.virtual_memory()
-    widgets['sys_stat'] = '%%{A:system_status:}[CPU] %2.0f%% | [MEM] %.2fGB (%2.0f%%)%%{A}' % (psutil.cpu_percent(), vmem.used / float(2**30), vmem.percent )
+    WIDGETS['sys_stat'] = '%%{A:system_status:}[CPU] %2.0f%% | [MEM] %.2fGB (%2.0f%%)%%{A}' % (psutil.cpu_percent(), vmem.used / float(2**30), vmem.percent )
 
 import dbus
 
@@ -198,8 +201,8 @@ def get_clementine_status():
 @schedule(2)
 def music():
     status, cur_playing, _ = get_clementine_status()
-    widgets['cur_playing'] = cur_playing
-    widgets['music'] = '%%{A0:music_show:}%%{A:music_open:}  %s  %%{A}%%{A:music_prev:} %s %%{A} %%{A:music_toggle:} %s %%{A} %%{A:music_next:} %s %%{A} %%{A}' % (icons['music'], icons['prev'], icons['play'] if status != 0 else icons['pause'], icons['next'])
+    WIDGETS['cur_playing'] = cur_playing
+    WIDGETS['music'] = '%%{A0:music_show:}%%{A:music_open:}  %s  %%{A}%%{A:music_prev:} %s %%{A} %%{A:music_toggle:} %s %%{A} %%{A:music_next:} %s %%{A} %%{A}' % (ICONS['music'], ICONS['prev'], ICONS['play'] if status != 0 else ICONS['pause'], ICONS['next'])
 
 def music_toggle():
     status, cur_playing, iface = get_clementine_status()
@@ -221,7 +224,7 @@ def music_next(prev=False):
 
 @schedule(0.2)
 def wname():
-    global widgets
+    global WIDGETS
     while gtk.events_pending():
         gtk.main_iteration()
     try:
@@ -230,7 +233,7 @@ def wname():
         active_window = 'Desktop'
     if len(active_window) > ACTIVE_WIN_MAX_LEN:
         active_window = active_window[:ACTIVE_WIN_MAX_LEN] + '...'
-    widgets['wname'] = '%%{A:window_switcher:}%s%%{A}' % (active_window)
+    WIDGETS['wname'] = '%%{A:window_switcher:}%s%%{A}' % (active_window)
     redraw()
 
 @schedule(3600)
@@ -267,9 +270,9 @@ def volume_down():
     subprocess.call('amixer -D pulse sset Master 3%-', shell=True)
 
 def brightness_up():
-    subprocess.call('sudo tee "%s" <<< %d &>/dev/null' % (os.path.join(BRIGHT_FILE, 'brightness'), state['brightness']+1), shell=True)
+    subprocess.call('sudo tee "%s" <<< %d &>/dev/null' % (os.path.join(BRIGHT_FILE, 'brightness'), STATE['brightness']+1), shell=True)
 def brightness_down():
-    subprocess.call('sudo tee "%s" <<< %d &>/dev/null' % (os.path.join(BRIGHT_FILE, 'brightness'), state['brightness']-1), shell=True)
+    subprocess.call('sudo tee "%s" <<< %d &>/dev/null' % (os.path.join(BRIGHT_FILE, 'brightness'), STATE['brightness']-1), shell=True)
 
 def update_packages():
     subprocess.call("xterm -e 'sudo pacman -Syu; echo Press any key to continue... && read -n 1'", shell=True)
@@ -279,7 +282,7 @@ def update_packages():
 def perform_action():
     global temp_info_mode
     while True:
-        action = bar_proc.stdout.readline().strip()
+        action = BAR_PROC.stdout.readline().strip()
         if action == 'calendar':
             subprocess.Popen('gsimplecal')
         elif action == 'volume_show':
@@ -324,21 +327,21 @@ def perform_action():
             subprocess.Popen('clementine')
         elif action == 'power_show':
             if not temp_info_active or temp_info_item != 'cur_power_selection':
-                widgets['cur_power_selection'] = widgets['power_help']
+                WIDGETS['cur_power_selection'] = WIDGETS['power_help']
             activate_temp_info('cur_power_selection')
         elif action == 'power_next':
-            cur_selection = widgets['cur_power_selection']
-            cur_idx = power_options_order.index(cur_selection) \
-                    if cur_selection in power_options_order else -1
-            next_idx = (cur_idx + 1) % len(power_options_order)
-            widgets['cur_power_selection'] = power_options_order[next_idx]
+            cur_selection = WIDGETS['cur_power_selection']
+            cur_idx = POWER_OPTIONS_ORDER.index(cur_selection) \
+                    if cur_selection in POWER_OPTIONS_ORDER else -1
+            next_idx = (cur_idx + 1) % len(POWER_OPTIONS_ORDER)
+            WIDGETS['cur_power_selection'] = POWER_OPTIONS_ORDER[next_idx]
             activate_temp_info('cur_power_selection')
             redraw()
         elif action == 'power_select':
-            if temp_info_active and temp_info_item == 'cur_power_selection' and widgets['cur_power_selection'] in power_commands:
-                subprocess.Popen(power_commands[widgets['cur_power_selection']], shell=True)
+            if temp_info_active and temp_info_item == 'cur_power_selection' and WIDGETS['cur_power_selection'] in POWER_COMMANDS:
+                subprocess.Popen(POWER_COMMANDS[WIDGETS['cur_power_selection']], shell=True)
         elif action == 'date_show':
-            widgets['date_info'] = time.strftime('%A, %d %B %Y')
+            WIDGETS['date_info'] = time.strftime('%A, %d %B %Y')
             activate_temp_info('date_info')
         elif action == 'music_show':
             activate_temp_info('cur_playing')
