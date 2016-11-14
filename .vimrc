@@ -11,7 +11,7 @@ Plug 'tpope/vim-commentary'
 Plug 'flazz/vim-colorschemes'
 Plug 'plasticboy/vim-markdown', {'for': 'markdown'}
 Plug 'jiangmiao/auto-pairs'
-" Plug 'tpope/vim-surround'
+Plug 'tpope/vim-surround'
 Plug 'Rip-Rip/clang_complete'
 Plug 'Shougo/deoplete.nvim'
 Plug 'SirVer/ultisnips'
@@ -110,6 +110,10 @@ autocmd BufReadPost *
 nnoremap <leader>w :w<CR>
 " save write protected file as root
 nnoremap <leader>sw :w !sudo tee %<CR>
+
+" prevent slowdown due to large lines, disable syntax highlighting beyond the
+" given column
+set synmaxcol=120
 
 " ==================== PLUGIN SETTINGS AND MAPPINGS ======================
 
