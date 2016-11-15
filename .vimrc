@@ -31,19 +31,16 @@ Plug 'zchee/deoplete-jedi'
 call plug#end()
 
 filetype plugin indent on     " auto indent
-set number                    " show line numbers
-set relativenumber            " make the line numbers relative to current position
+set number relativenumber     " show line numbers, make them relative
 syntax enable                 " enable syntax highlighting
 set t_co=256                  " force 256 colors
 set wrap                      " enable word wrap
-set showmatch                 " blink match parenthesis
-set mat=5                     " blink match time
-set ruler                     " show line numbers
+set showmatch mat=5           " blink match parenthesis, blink match time
+set ruler cursorline
 set pastetoggle=<F2>          " shortcut for paste mode
 set so=12                     " avoid cursor getting to extreme bottom/top
 set tm=400                    " Time waited for special sequences
-set noerrorbells
-set novisualbell
+set noerrorbells novisualbell
 set hidden
 colorscheme molokai_dark
 
@@ -52,35 +49,22 @@ colorscheme molokai_dark
 let g:mapleader = ","
 
 " folding options
-set foldlevelstart=10
-set foldnestmax=10
-set foldmethod=indent
+set foldlevelstart=10 foldnestmax=10 foldmethod=indent
 
 " filetype settings
 set ffs=unix,dos,mac
 set wildignore=*.o,*~,*.pyc
 
 " search options
-set ignorecase
-set smartcase
-set cursorline                " Highlight current cursorline
-set incsearch                 " Enable incremental search
+set ignorecase smartcase incsearch
 " clear highlighting
 nmap // :noh<cr>
 
 " disable extra files created by vim
-set nobackup
-set nowb
-set noswapfile
+set nobackup nowb noswapfile
 
 " indentation
-set expandtab
-set smarttab
-set shiftwidth=4
-set tabstop=8
-set softtabstop=4
-set autoindent
-set smartindent
+set expandtab smarttab shiftwidth=4 tabstop=8 softtabstop=4 autoindent smartindent
 
 " navigate through word wrap
 nnoremap j gj
