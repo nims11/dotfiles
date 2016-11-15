@@ -86,7 +86,7 @@ nmap <leader>bq :bp <BAR> bd #<CR>
 inoremap jk <esc>
 
 " open at the previous cursor position
-autocmd BufReadPost *
+autocmd! BufReadPost *
      \ if line("'\"") > 0 && line("'\"") <= line("$") |
      \   exe "normal! g`\"" |
      \ endif
@@ -124,13 +124,13 @@ vmap <space> gc
 let g:vim_markdown_folding_disabled=1
 
 " gundo bindings
-nnoremap <F5> :GundoToggle<CR>
+nnoremap <C-z> :GundoToggle<CR>
 
 " use deoplete.
 let g:deoplete#enable_at_startup = 1
 let g:deoplete#enable_smart_case = 1
 " close preview window after completion
-autocmd CompleteDone * pclose!
+autocmd! CompleteDone * pclose!
 
 " ultisnips settings
 let g:UltiSnipsSnippetDirectories=[$HOME.'/.vim/ultisnips']
@@ -153,6 +153,7 @@ endfunction
 
 autocmd! User GoyoEnter nested call <SID>goyo_enter()
 autocmd! User GoyoLeave nested call <SID>goyo_leave()
+noremap <F5> <C-O>:Goyo<CR>
 
 " ==================== CUSTOM SETTINGS ======================
 
