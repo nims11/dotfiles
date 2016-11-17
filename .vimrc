@@ -55,6 +55,9 @@ set foldlevelstart=10 foldnestmax=10 foldmethod=indent
 set ffs=unix,dos,mac
 set wildignore=*.o,*~,*.pyc
 
+" prevents syntax highlighting for long lines (performance)
+set synmaxcol=120
+
 " search options
 set ignorecase smartcase incsearch
 " clear highlighting
