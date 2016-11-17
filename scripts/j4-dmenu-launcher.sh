@@ -1,3 +1,5 @@
 #!/bin/sh
-DMENU_COMMAND="rofi -dmenu -i -p '>'"
-j4-dmenu-desktop  --dmenu="$DMENU_COMMAND" --term="IN_TMUX=1 terminator"
+source ~/.config/colorscheme.config
+j4-dmenu-desktop \
+    --dmenu='dmenu -b -q -i -h 25 -p ">" -fn "Ubuntu Mono-9" -nb "#'$BG'" -nf "#'$FG'" -sb "#'$FG'" -sf "#'$BG'"'\
+    --term="termite"

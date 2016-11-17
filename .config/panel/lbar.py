@@ -1,4 +1,7 @@
 #!/usr/bin/python2
+"""
+Bar generator
+"""
 from __future__ import print_function
 import sys
 import os
@@ -13,18 +16,43 @@ import psutil
 
 CUR_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Launch lemonbar
-BACKGROUND = '#EE141311'
-FOREGROUND = '#EE686766'
-BAR_PROC = subprocess.Popen(
-    'lemonbar -a 30 -b -g x25 -B%s -F%s -f "Ubuntu Mono-9" -f "FontAwesome-9"' \
-    % (BACKGROUND, FOREGROUND),
-    shell=True,
-    stdin=subprocess.PIPE,
-    stdout=subprocess.PIPE)
+def read_config():
+    """
+    Reads config from ~/.config/colorscheme.config
+    """
+    config = {}
+    try:
+        color_config = os.path.join(os.path.expanduser('~'), '.config/colorscheme.config')
+        with open(color_config) as config_file:
+            for line in config_file:
+                key, val = [x.strip().strip('"\'') for x in line.strip().split('=')]
+                config[key] = val
+    except IOError:
+        traceback.print_exc()
+    return config
+
+def start_bar(BG, FG):
+    """
+    Starts lemonbar and returns the handler
+    """
+    return subprocess.Popen(
+        'lemonbar -B%s -F%s -a 30 -b -g x25 -f "Ubuntu Mono-9" -f "FontAwesome-9"' %
+        (BG, FG),
+        shell=True,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE)
+
+CONFIG = read_config()
+OPACITY = CONFIG.get('OPACITY', 'EE')
+BG = '#'+OPACITY+CONFIG.get('BG', '141311')
+FG = '#'+OPACITY+CONFIG.get('FG', '686766')
+ALTFG = '#'+OPACITY+CONFIG.get('ALTFG', '141311')
+ALTBG = '#'+OPACITY+CONFIG.get('ALTBG', '686766')
+
+BAR_PROC = start_bar(BG, FG)
 
 # Weather settings
-WEATHER_LOCATION = 'waterloo'
+WEATHER_LOCATION = CONFIG.get('WEATHER', 'waterloo')
 WEATHER_URL = 'http://rss.accuweather.com/rss/liveweather_rss.asp?locCode=%s&metric=1'\
     % WEATHER_LOCATION
 
@@ -78,7 +106,7 @@ ICONS = {
     'prev'              : u'\uf048',
     'music'             : u'%{T2}\uf001%{T-}',
     'power'             : u'%{T2}\uf011%{T-}',
-    }
+}
 
 POWER_COMMANDS = {
     'Shutdown': 'systemctl poweroff',
@@ -86,16 +114,13 @@ POWER_COMMANDS = {
     'Suspend': 'systemctl suspend',
     'Hibernate': 'systemctl hibernate',
     'Lock Screen': 'slimlock'
-    }
+}
 
 POWER_OPTIONS_ORDER = ['Shutdown', 'Reboot', 'Suspend', 'Hibernate', 'Lock Screen']
 
-WIDGETS['volume'] = '%%{A:volume_more:}%%{A4:volume_up:}%%{A5:volume_down:}%%{A0:volume_show:}%s%%{A}%%{A}%%{A}%%{A}' % ICONS['volume_high']
 WIDGETS['brightness'] = '%%{A4:brightness_up:}%%{A5:brightness_down:}%%{A0:brightness_show:}%s%%{A}%%{A}%%{A}' % ICONS['brightness_high']
 WIDGETS['os_plain'] = '%%{A:update:}%%{A0:os_show:}%s%%{A}%%{A}' % ICONS['os']
-WIDGETS['os'] = WIDGETS['os_plain']
 WIDGETS['weather'] = '%%{A:weather_open:}%%{A0:weather_show:}%s%%{A}%%{A}' % ICONS['weather']
-WIDGETS['music'] = '%%{A0:music_show:}%%{A:music_open:}  %s  %%{A} %%{A:music_prev:}%s%%{A}   %%{A:music_toggle:}%s%%{A}   %%{A:music_next:}%s%%{A}  %%{A}' % (ICONS['music'], ICONS['prev'], ICONS['play'], ICONS['next'])
 WIDGETS['power'] = '%%{A0:power_show:}%%{A3:power_next:}%%{A:power_select:}%s%%{A}%%{A}%%{A}' % (ICONS['power'])
 WIDGETS['power_help'] = '[Power Options] Right Click To Navigate, Left Click To Select'
 WIDGETS['cur_power_selection'] = ''
@@ -115,13 +140,13 @@ def redraw():
     if temp_info_active:
         info_panel_item = WIDGETS.get(temp_info_item, '')
     panel_str = u'%%{B%s}%%{l} %s %%{c} %s %%{r} %%{R}%s%%{R}  %s  %%{R} %s %%{R}\n' % (
-            BACKGROUND if WIDGETS['ac_power'] else '#500',
-            WIDGETS['wname'],
-            info_panel_item,
-            WIDGETS['music'],
-            ' '.join(WIDGETS[x] for x in ('weather', 'os', 'brightness', 'volume', 'power')),
-            WIDGETS['clock']
-            )
+        BG if WIDGETS['ac_power'] else '#500',
+        WIDGETS['wname'],
+        info_panel_item,
+        WIDGETS['music'],
+        ' '.join(WIDGETS[x] for x in ('weather', 'os', 'brightness', 'volume', 'power')),
+        WIDGETS['clock']
+    )
     BAR_PROC.stdin.write(panel_str.encode('utf-8'))
     BAR_PROC.stdin.flush()
 
@@ -332,7 +357,7 @@ def perform_action():
         elif action == 'power_next':
             cur_selection = WIDGETS['cur_power_selection']
             cur_idx = POWER_OPTIONS_ORDER.index(cur_selection) \
-                    if cur_selection in POWER_OPTIONS_ORDER else -1
+                if cur_selection in POWER_OPTIONS_ORDER else -1
             next_idx = (cur_idx + 1) % len(POWER_OPTIONS_ORDER)
             WIDGETS['cur_power_selection'] = POWER_OPTIONS_ORDER[next_idx]
             activate_temp_info('cur_power_selection')
@@ -340,8 +365,8 @@ def perform_action():
         elif action == 'power_select':
             if temp_info_active and temp_info_item == 'cur_power_selection' and WIDGETS['cur_power_selection'] in POWER_COMMANDS:
                 subprocess.Popen(POWER_COMMANDS[WIDGETS['cur_power_selection']], shell=True)
-        elif action == 'date_show':
-            WIDGETS['date_info'] = time.strftime('%A, %d %B %Y')
+            elif action == 'date_show':
+                WIDGETS['date_info'] = time.strftime('%A, %d %B %Y')
             activate_temp_info('date_info')
         elif action == 'music_show':
             activate_temp_info('cur_playing')
