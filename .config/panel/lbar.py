@@ -365,8 +365,8 @@ def perform_action():
         elif action == 'power_select':
             if temp_info_active and temp_info_item == 'cur_power_selection' and WIDGETS['cur_power_selection'] in POWER_COMMANDS:
                 subprocess.Popen(POWER_COMMANDS[WIDGETS['cur_power_selection']], shell=True)
-            elif action == 'date_show':
-                WIDGETS['date_info'] = time.strftime('%A, %d %B %Y')
+        elif action == 'date_show':
+            WIDGETS['date_info'] = time.strftime('%A, %d %B %Y')
             activate_temp_info('date_info')
         elif action == 'music_show':
             activate_temp_info('cur_playing')
