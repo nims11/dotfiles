@@ -2,6 +2,6 @@
 ~/wallpaper.sh &
 compton &
 artha &
-terminator &
+termite &
 sudo netctl start eduroam &
 python2 ~/.config/panel/lbar.py
