@@ -6,13 +6,10 @@ endif
 
 call plug#begin('~/.vim/plugged')
 Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
 Plug 'tpope/vim-commentary'
-Plug 'flazz/vim-colorschemes'
 Plug 'plasticboy/vim-markdown', {'for': 'markdown'}
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-surround'
-Plug 'Rip-Rip/clang_complete'
 Plug 'Shougo/deoplete.nvim'
 Plug 'SirVer/ultisnips'
 Plug 'sjl/gundo.vim'
@@ -27,7 +24,11 @@ Plug 'sheerun/vim-polyglot'
 " deoplete external sources
 Plug 'eagletmt/neco-ghc'
 Plug 'zchee/deoplete-jedi'
+Plug 'Rip-Rip/clang_complete'
 
+" themes
+Plug 'vim-airline/vim-airline-themes'
+Plug 'flazz/vim-colorschemes'
 call plug#end()
 
 filetype plugin indent on     " auto indent

@@ -1,5 +1,5 @@
 #!/bin/bash
-while true; do
-    find ~/wallpapers -maxdepth 1 -type f \( -name '*.jpg' -o -name '*.png' \) -print0 | shuf -n1 -z | xargs -0 feh --bg-scale
-    sleep 15m
-done
+path=$(find ~/wallpapers -maxdepth 1 -type f \( -name '*.jpg' -o -name '*.png' \) | shuf -n1)
+resolution=$(xdpyinfo | grep 'dimensions:' | awk '{print $2}')
+convert "$path" -resize $resolution! /tmp/cur_wallpaper.png
+feh --bg-scale /tmp/cur_wallpaper.png

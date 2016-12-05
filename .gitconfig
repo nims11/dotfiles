@@ -15,3 +15,5 @@
     co = checkout
     pm = push origin master
     lg = log --decorate --graph --oneline
+[commit]
+	gpgsign = true
