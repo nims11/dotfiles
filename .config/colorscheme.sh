@@ -8,7 +8,7 @@ if [[ $# < 1 || $# > 5 ]]; then
     exit 1
 fi
 
-OPACITY=EE
+OPACITY=E0
 BG=141311
 FG=686766
 ALTBG=686766
