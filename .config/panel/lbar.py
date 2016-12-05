@@ -36,7 +36,7 @@ def start_bar(BG, FG):
     Starts lemonbar and returns the handler
     """
     return subprocess.Popen(
-        'lemonbar -B%s -F%s -a 30 -b -g x25 -f "Ubuntu Mono-9" -f "FontAwesome-9"' %
+        'lemonbar -B%s -F%s -a 30 -b -g x25 -f "Ubuntu Mono-9" -f "FontAwesome-8"' %
         (BG, FG),
         shell=True,
         stdin=subprocess.PIPE,
@@ -106,6 +106,8 @@ ICONS = {
     'prev'              : u'\uf048',
     'music'             : u'%{T2}\uf001%{T-}',
     'power'             : u'%{T2}\uf011%{T-}',
+    'CPU'               : u'\uf0ae',
+    'wallpaper'         : u'\uf108'
 }
 
 POWER_COMMANDS = {
@@ -124,6 +126,8 @@ WIDGETS['weather'] = '%%{A:weather_open:}%%{A0:weather_show:}%s%%{A}%%{A}' % ICO
 WIDGETS['power'] = '%%{A0:power_show:}%%{A3:power_next:}%%{A:power_select:}%s%%{A}%%{A}%%{A}' % (ICONS['power'])
 WIDGETS['power_help'] = '[Power Options] Right Click To Navigate, Left Click To Select'
 WIDGETS['cur_power_selection'] = ''
+WIDGETS['wallpaper'] = '%%{A0:wallpaper_help:}%%{A:change_wallpaper:}%s%%{A}%%{A}' % ICONS['wallpaper']
+WIDGETS['wallpaper_help'] = 'Next Wallpaper'
 
 screen = wnck.screen_get_default()
 screen.force_update()
@@ -144,7 +148,7 @@ def redraw():
         WIDGETS['wname'],
         info_panel_item,
         WIDGETS['music'],
-        ' '.join(WIDGETS[x] for x in ('weather', 'os', 'brightness', 'volume', 'power')),
+        ' '.join(WIDGETS[x] for x in ('weather', 'os', 'wallpaper', 'brightness', 'volume', 'power')),
         WIDGETS['clock']
     )
     BAR_PROC.stdin.write(panel_str.encode('utf-8'))
@@ -200,7 +204,7 @@ def set_weather_info():
 @schedule(1)
 def set_sys_stat():
     vmem = psutil.virtual_memory()
-    WIDGETS['sys_stat'] = '%%{A:system_status:}[CPU] %2.0f%% | [MEM] %.2fGB (%2.0f%%)%%{A}' % (psutil.cpu_percent(), vmem.used / float(2**30), vmem.percent )
+    WIDGETS['sys_stat'] = '%%{A:system_status:}%s %2.0f%% %.2fGB%%{A}' % (ICONS['CPU'], psutil.cpu_percent(), vmem.used / float(2**30))
 
 import dbus
 
@@ -379,3 +383,7 @@ def perform_action():
         elif action == 'music_next':
             music_next()
             music()
+        elif action == 'wallpaper_help':
+            activate_temp_info('wallpaper_help')
+        elif action == 'change_wallpaper':
+            subprocess.Popen('bash ~/wallpaper.sh next', shell=True)
