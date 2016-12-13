@@ -13,6 +13,7 @@ from threading import Thread
 import wnck
 import gtk
 import psutil
+import abc
 
 CUR_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -31,17 +32,6 @@ def read_config():
         traceback.print_exc()
     return config
 
-def start_bar(BG, FG):
-    """
-    Starts lemonbar and returns the handler
-    """
-    return subprocess.Popen(
-        'lemonbar -B%s -F%s -a 30 -b -g x25 -f "Ubuntu Mono-9" -f "FontAwesome-8"' %
-        (BG, FG),
-        shell=True,
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE)
-
 CONFIG = read_config()
 OPACITY = CONFIG.get('OPACITY', 'EE')
 BG = '#'+OPACITY+CONFIG.get('BG', '141311')
@@ -49,7 +39,6 @@ FG = '#'+OPACITY+CONFIG.get('FG', '686766')
 ALTFG = '#'+OPACITY+CONFIG.get('ALTFG', '141311')
 ALTBG = '#'+OPACITY+CONFIG.get('ALTBG', '686766')
 
-BAR_PROC = start_bar(BG, FG)
 
 # Weather settings
 WEATHER_LOCATION = CONFIG.get('WEATHER', 'waterloo')
@@ -80,12 +69,17 @@ def schedule(time_in_seconds=None):
 # Brightness settings
 BRIGHT_FILE = '/sys/class/backlight/acpi_video0'
 MAX_BRIGHTNESS = 10
-with open(os.path.join(BRIGHT_FILE, 'max_brightness')) as f:
-    MAX_BRIGHTNESS = int(f.read().strip())
+try:
+    with open(os.path.join(BRIGHT_FILE, 'max_brightness')) as f:
+        MAX_BRIGHTNESS = int(f.read().strip())
+    BRIGHTNESS_FILE_AVAILABLE = True
+except:
+    BRIGHTNESS_FILE_AVAILABLE = False
 
 # Power supply settings
 POWER_DIRECTORY = '/sys/class/power_supply/ACAD'
 AC_POWER_FILE = os.path.join(POWER_DIRECTORY, 'online')
+POWER_FILE_EXISTS = os.path.exists(AC_POWER_FILE)
 
 WIDGETS = defaultdict(str)
 STATE = {}
@@ -140,20 +134,66 @@ def progress(val, tot=100, bars=40, name=''):
     return u'%s \uf0d9 %s \uf0da %d/%d' % (name, progress, val, tot)
 
 #### Scheduled function ####
-def redraw():
-    info_panel_item = WIDGETS['sys_stat']
-    if temp_info_active:
-        info_panel_item = WIDGETS.get(temp_info_item, '')
-    panel_str = u'%%{B%s}%%{l} %s %%{c} %s %%{r} %%{R}%s%%{R}  %s  %%{R} %s %%{R}\n' % (
-        BG if WIDGETS['ac_power'] else '#500',
-        WIDGETS['wname'],
-        info_panel_item,
-        WIDGETS['music'],
-        ' '.join(WIDGETS[x] for x in ('weather', 'os', 'wallpaper', 'brightness', 'volume', 'power')),
-        WIDGETS['clock']
-    )
-    BAR_PROC.stdin.write(panel_str.encode('utf-8'))
-    BAR_PROC.stdin.flush()
+class Main(object):
+    @staticmethod
+    def start_bar(command):
+        """
+        Starts lemonbar and returns the handler
+        """
+        return subprocess.Popen(
+            command,
+            shell=True,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE)
+
+    def __init__(self, panel_str, command):
+        self.panel_str = panel_str
+        self.BAR_PROC = Main.start_bar(command)
+        self.right_widgets = ['weather', 'os', 'wallpaper', 'brightness', 'volume', 'power']
+        if not BRIGHTNESS_FILE_AVAILABLE:
+            self.right_widgets.remove('brightness')
+
+    def redraw(self):
+        info_panel_item = WIDGETS['sys_stat']
+        if temp_info_active:
+            info_panel_item = WIDGETS.get(temp_info_item, '')
+        panel_str = self.panel_str % (
+            BG if WIDGETS.get('ac_power', True) else '#500',
+            WIDGETS['wname'],
+            info_panel_item,
+            WIDGETS['music'],
+            ' '.join(WIDGETS[x] for x in ('weather', 'os', 'wallpaper', 'brightness', 'volume', 'power')),
+            WIDGETS['clock']
+        )
+        self.BAR_PROC.stdin.write(panel_str.encode('utf-8'))
+        self.BAR_PROC.stdin.flush()
+
+# class Widget(object):
+#     __metaclass__ = abc.ABCMeta
+
+#     def __init__(self, update_time=None):
+#         try:
+#             self.init()
+#             schedule(update_time)(self.update)
+#         except:
+#             traceback.print_exc()
+
+#     @abc.abstractmethod
+#     def init(self):
+#         return
+
+#     @abc.abstractmethod
+#     def update(self):
+#         return
+
+COMMAND='lemonbar -B%s -F%s -a 30 -b -g x25 -f "Ubuntu Mono-9" -f "FontAwesome-8"' % (BG, FG)
+if os.environ.get('HIDPI', False) == "1":
+    COMMAND='lemonbar -B%s -F%s -a 30 -b -g x35 -f "Ubuntu Mono-10" -f "FontAwesome-9"' % (BG, FG)
+
+main = Main(
+    panel_str=u'%%{B%s}%%{l} %s %%{c} %s %%{r} %%{R}%s%%{R}  %s  %%{R} %s %%{R}\n',
+    command=COMMAND
+)
 
 @schedule(1)
 def clock():
@@ -172,20 +212,22 @@ def set_volume_info():
     WIDGETS['volume'] = '%%{A:volume_more:}%%{A4:volume_up:}%%{A5:volume_down:}%%{A0:volume_show:}%s%%{A}%%{A}%%{A}%%{A}' % cur_icon
     WIDGETS['volume_bar'] = progress(cur_volume, name='[Volume]')
 
-@schedule(1)
-def set_ac_power():
-    global WIDGETS
-    with open(AC_POWER_FILE) as f:
-        WIDGETS['ac_power'] = f.read().strip() != '0'
+if POWER_FILE_EXISTS:
+    @schedule(1)
+    def set_ac_power():
+        global WIDGETS
+        with open(AC_POWER_FILE) as f:
+            WIDGETS['ac_power'] = f.read().strip() != '0'
 
-@schedule(10)
-def set_brightness_info():
-    global WIDGETS
-    brightness_val = 0
-    with open(os.path.join(BRIGHT_FILE, 'brightness')) as f:
-        brightness_val = int(f.read().strip())
-        STATE['brightness'] = brightness_val
-    WIDGETS['brightness_bar'] = progress(brightness_val, tot=MAX_BRIGHTNESS, name='[Brightness]')
+if BRIGHTNESS_FILE_AVAILABLE:
+    @schedule(10)
+    def set_brightness_info():
+        global WIDGETS
+        brightness_val = 0
+        with open(os.path.join(BRIGHT_FILE, 'brightness')) as f:
+            brightness_val = int(f.read().strip())
+            STATE['brightness'] = brightness_val
+        WIDGETS['brightness_bar'] = progress(brightness_val, tot=MAX_BRIGHTNESS, name='[Brightness]')
 
 @schedule(600)
 def set_os_info():
@@ -264,7 +306,7 @@ def wname():
     if len(active_window) > ACTIVE_WIN_MAX_LEN:
         active_window = active_window[:ACTIVE_WIN_MAX_LEN] + '...'
     WIDGETS['wname'] = '%%{A:window_switcher:}%s%%{A}' % (active_window)
-    redraw()
+    main.redraw()
 
 @schedule(3600)
 def update_package_list():
@@ -312,7 +354,7 @@ def update_packages():
 def perform_action():
     global temp_info_mode
     while True:
-        action = BAR_PROC.stdout.readline().strip()
+        action = main.BAR_PROC.stdout.readline().strip()
         if action == 'calendar':
             subprocess.Popen('gsimplecal')
         elif action == 'volume_show':
@@ -321,12 +363,12 @@ def perform_action():
             volume_up()
             set_volume_info()
             activate_temp_info('volume_bar')
-            redraw()
+            main.redraw()
         elif action == 'volume_down':
             volume_down()
             set_volume_info()
             activate_temp_info('volume_bar')
-            redraw()
+            main.redraw()
         elif action == 'volume_more':
             subprocess.Popen('pavucontrol')
         elif action == 'brightness_show':
@@ -335,12 +377,12 @@ def perform_action():
             brightness_up()
             set_brightness_info()
             activate_temp_info('brightness_bar')
-            redraw()
+            main.redraw()
         elif action == 'brightness_down':
             brightness_down()
             set_brightness_info()
             activate_temp_info('brightness_bar')
-            redraw()
+            main.redraw()
         elif action == 'os_show':
             activate_temp_info('os_info')
         elif action == 'update':
@@ -366,7 +408,7 @@ def perform_action():
             next_idx = (cur_idx + 1) % len(POWER_OPTIONS_ORDER)
             WIDGETS['cur_power_selection'] = POWER_OPTIONS_ORDER[next_idx]
             activate_temp_info('cur_power_selection')
-            redraw()
+            main.redraw()
         elif action == 'power_select':
             if temp_info_active and temp_info_item == 'cur_power_selection' and WIDGETS['cur_power_selection'] in POWER_COMMANDS:
                 subprocess.Popen(POWER_COMMANDS[WIDGETS['cur_power_selection']], shell=True)
