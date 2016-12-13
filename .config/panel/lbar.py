@@ -107,7 +107,8 @@ ICONS = {
     'music'             : u'%{T2}\uf001%{T-}',
     'power'             : u'%{T2}\uf011%{T-}',
     'CPU'               : u'\uf0ae',
-    'wallpaper'         : u'\uf108'
+    'wallpaper'         : u'\uf108',
+    'sync'              : u'\uf021',
 }
 
 POWER_COMMANDS = {
