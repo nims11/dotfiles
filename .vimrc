@@ -20,6 +20,7 @@ Plug 'junegunn/goyo.vim'
 Plug 'hynek/vim-python-pep8-indent'
 Plug 'airblade/vim-gitgutter'
 Plug 'sheerun/vim-polyglot'
+Plug 'vimwiki/vimwiki'
 
 " deoplete external sources
 Plug 'eagletmt/neco-ghc'
