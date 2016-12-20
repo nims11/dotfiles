@@ -34,15 +34,12 @@ alias tx="tmux attach || tmux"
 # Custom dircolors
 eval $(dircolors ~/.dircolors)
 
-[[ $- != *i* ]] && return
-if [ -z "$SSH_AUTH_SOCK" ] ; then
-  eval `ssh-agent -s`
-  ssh-add
-fi
-
 function pydefault(){
     if [[ $1 == "2" || $1 == "3" ]];then
         sudo rm /usr/bin/python
         sudo ln -s /usr/bin/python$1 /usr/bin/python
     fi
 }
+
+keychain ~/.ssh/id_rsa C838FC13F0FD455541C590412B6DAF67FFAE3F83 --quiet --agents ssh,gpg
+. ~/.keychain/$(hostname)-sh
