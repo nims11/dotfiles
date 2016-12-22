@@ -10,7 +10,6 @@ import subprocess
 import time
 from collections import defaultdict
 from threading import Thread
-import wnck
 import gtk
 import psutil
 import abc
@@ -19,29 +18,32 @@ CUR_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def read_config():
     """
-    Reads config from ~/.config/colorscheme.config
+    Reads config from Xresources
+    a very dirty way to read xresources (no class, no xrdb)
     """
     config = {}
     try:
-        color_config = os.path.join(os.path.expanduser('~'), '.config/colorscheme.config')
-        with open(color_config) as config_file:
+        xres = os.path.join(os.path.expanduser('~'), '.Xresources')
+        with open(xres) as config_file:
             for line in config_file:
-                key, val = [x.strip().strip('"\'') for x in line.strip().split('=')]
-                config[key] = val
+                line = [x.strip() for x in line.strip().split(':')]
+                if len(line) == 2:
+                    key, val = line
+                    config[key] = val
     except IOError:
         traceback.print_exc()
     return config
 
 CONFIG = read_config()
-OPACITY = CONFIG.get('OPACITY', 'EE')
-BG = '#'+OPACITY+CONFIG.get('BG', '141311')
-FG = '#'+OPACITY+CONFIG.get('FG', '686766')
-ALTFG = '#'+OPACITY+CONFIG.get('ALTFG', '141311')
-ALTBG = '#'+OPACITY+CONFIG.get('ALTBG', '686766')
+OPACITY = CONFIG.get('*.opacity', '#EE')[1:]
+BG = '#'+OPACITY+CONFIG.get('*.background', '#141311')[1:]
+FG = CONFIG.get('*.foreground', '#686766')
+ALTFG = CONFIG.get('*.background', '#141311')
+ALTBG = '#'+OPACITY+CONFIG.get('*.foreground', '#686766')[1:]
 
 
 # Weather settings
-WEATHER_LOCATION = CONFIG.get('WEATHER', 'waterloo')
+WEATHER_LOCATION = CONFIG.get('lbar.location','waterloo')
 WEATHER_URL = 'http://rss.accuweather.com/rss/liveweather_rss.asp?locCode=%s&metric=1'\
     % WEATHER_LOCATION
 
@@ -55,9 +57,11 @@ def schedule(time_in_seconds=None):
             while True:
                 try:
                     func()
+                    time.sleep(time_in_seconds)
+                except KeyboardInterrupt:
+                    sys.exit(0)
                 except:
                     traceback.print_exc(file=sys.stderr)
-                time.sleep(time_in_seconds)
 
         if time_in_seconds is not None:
             Thread(target=_run).start()
@@ -90,7 +94,7 @@ temp_info_item = None
 ICONS = {
     'volume_high'       : u'\uF028',
     'volume_low'        : u'\uF027',
-    'volume_mute'       : u'%{F#F44242}\uF026%{F-}',
+    'volume_mute'       : u'%%{F%s}\uF026%%{F-}' % CONFIG.get('*.color1', '#F44242'),
     'brightness_high'   : u'\uF0EB',
     'os'                : u'\uF17C',
     'weather'           : u'\uF2CB',
@@ -123,10 +127,6 @@ WIDGETS['power_help'] = '[Power Options] Right Click To Navigate, Left Click To 
 WIDGETS['cur_power_selection'] = ''
 WIDGETS['wallpaper'] = '%%{A0:wallpaper_help:}%%{A:change_wallpaper:}%s%%{A}%%{A}' % ICONS['wallpaper']
 WIDGETS['wallpaper_help'] = 'Next Wallpaper'
-
-screen = wnck.screen_get_default()
-screen.force_update()
-
 
 #### Helpers ####
 def progress(val, tot=100, bars=40, name=''):
@@ -236,7 +236,7 @@ def set_os_info():
     update_count = int(subprocess.check_output('pacman -Qu | wc -l', shell=True).strip())
     WIDGETS['os_info'] = '%s - %s Updates available' % (os_version, update_count)
     if update_count > 0:
-        WIDGETS['os'] = '%%{F%s}%s%%{F-}' % ('#8E7', WIDGETS['os_plain'])
+        WIDGETS['os'] = '%%{F%s}%s%%{F-}' % (CONFIG.get('*.color2', '#8E7'), WIDGETS['os_plain'])
     else:
         WIDGETS['os'] = WIDGETS['os_plain']
 
@@ -297,10 +297,8 @@ def music_next(prev=False):
 @schedule(0.2)
 def wname():
     global WIDGETS
-    while gtk.events_pending():
-        gtk.main_iteration()
     try:
-        active_window = screen.get_active_window().get_name()
+        active_window = subprocess.check_output('xdotool getwindowfocus getwindowname', shell=True).strip()
     except:
         active_window = 'Desktop'
     if len(active_window) > ACTIVE_WIN_MAX_LEN:
