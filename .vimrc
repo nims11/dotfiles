@@ -179,3 +179,5 @@ nnoremap <leader>cr :execute '!g++ --std=c++11 ' . shellescape(join([expand("%:r
     \ ' && ./a.out < '. shellescape(join([expand("%:r"), "in"], "."), 1)<CR>
 " copy code to clipboard
 nnoremap <leader>cc ggvG"+y``
+
+" hi Normal ctermbg=none
