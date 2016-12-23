@@ -416,7 +416,7 @@
       </keybind>
       <keybind key="W-Tab">
           <action name="Execute">
-              <command>rofi -show window</command>
+              <command>~/scripts/window-switcher.sh</command>
           </action>
       </keybind>
       <!--    <keybind key="XF86AudioPlay">
