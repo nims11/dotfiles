@@ -58,15 +58,15 @@ def schedule(time_in_seconds=None):
                 try:
                     func()
                     time.sleep(time_in_seconds)
-                except KeyboardInterrupt:
-                    sys.exit(0)
                 except:
                     traceback.print_exc(file=sys.stderr)
 
         if time_in_seconds is not None:
-            Thread(target=_run).start()
+            t = Thread(target=_run)
         else:
-            Thread(target=func).start()
+            t = Thread(target=func)
+        t.setDaemon(True)
+        t.start()
         return func
     return _scheduled
 
@@ -249,58 +249,43 @@ def set_sys_stat():
     vmem = psutil.virtual_memory()
     WIDGETS['sys_stat'] = '%%{A:system_status:}%s %2.0f%% %.2fGB%%{A}' % (ICONS['CPU'], psutil.cpu_percent(), vmem.used / float(2**30))
 
-import dbus
-
-session_bus = dbus.SessionBus()
-
-def get_clementine_status():
+def get_music_status():
+    """
+    Assumes mpd is running and mpc is installed
+    """
     try:
-        player = session_bus.get_object('org.mpris.clementine', '/Player')
-        iface = dbus.Interface(player, dbus_interface='org.freedesktop.MediaPlayer')
-        metadata = iface.GetMetadata()
-        cur_playing = metadata.get('title', '') + ' - ' + metadata.get('artist', '')
-        if cur_playing == ' - ':
-            cur_playing = 'Not Playing'
-        status = iface.GetStatus().index(0)
-        running = True
+        cmd = "mpc | awk 'NR==1{print $0} NR==2{print $1}'"
+        out = subprocess.check_output(cmd, shell=True).split('\n')
+        if len(out) < 3:
+            raise Exception("stopped")
+        cur_playing, status = out[:2]
     except:
         cur_playing = 'Not Playing'
-        status = 1
-        running = True
-        iface = None
-    return status, cur_playing, iface
+        status = '[stopped]'
+    status = 0 if status == '[playing]' else 1
+    return status, cur_playing
 
-@schedule(2)
+@schedule(1.5)
 def music():
-    status, cur_playing, _ = get_clementine_status()
-    WIDGETS['cur_playing'] = cur_playing
+    status, cur_playing = get_music_status()
     WIDGETS['music'] = '%%{A0:music_show:}%%{A:music_open:}  %s  %%{A}%%{A:music_prev:} %s %%{A} %%{A:music_toggle:} %s %%{A} %%{A:music_next:} %s %%{A} %%{A}' % (ICONS['music'], ICONS['prev'], ICONS['play'] if status != 0 else ICONS['pause'], ICONS['next'])
+    if cur_playing != WIDGETS['cur_playing']:
+        WIDGETS['cur_playing'] = cur_playing
+        activate_temp_info('cur_playing')
 
 def music_toggle():
-    status, cur_playing, iface = get_clementine_status()
-    if iface is None:
-        subprocess.Popen('clementine')
-    elif status == 1:
-        iface.Play()
-    else:
-        iface.Pause()
+    subprocess.Popen('mpc toggle >/dev/null', shell=True)
 
-def music_next(prev=False):
-    status, cur_playing, iface = get_clementine_status()
-    if iface is None:
-        subprocess.Popen('clementine')
-    elif prev:
-        iface.Prev()
-    else:
-        iface.Next()
+def music_next():
+    subprocess.Popen('mpc next >/dev/null', shell=True)
+
+def music_prev():
+    subprocess.Popen('mpc prev >/dev/null', shell=True)
 
 @schedule(0.2)
 def wname():
     global WIDGETS
-    try:
-        active_window = subprocess.check_output('xdotool getwindowfocus getwindowname', shell=True).strip()
-    except:
-        active_window = 'Desktop'
+    active_window = subprocess.check_output('xdotool getwindowfocus getwindowname', shell=True).strip()
     if len(active_window) > ACTIVE_WIN_MAX_LEN:
         active_window = active_window[:ACTIVE_WIN_MAX_LEN] + '...'
     WIDGETS['wname'] = '%%{A:window_switcher:}%s%%{A}' % (active_window)
@@ -390,11 +375,11 @@ def perform_action():
         elif action == 'weather_show':
             activate_temp_info('weather_bar')
         elif action == 'weather_open':
-            subprocess.Popen('xdg-open %s' % WEATHER_URL, shell=True)
+            subprocess.Popen('xterm -maximized -e "curl wttr.in && read -n 1"', shell=True)
         elif action == 'system_status':
-            subprocess.Popen('gnome-system-monitor')
+            subprocess.Popen('xterm -maximized -e "htop"', shell=True)
         elif action == 'music_open':
-            subprocess.Popen('clementine')
+            subprocess.Popen('xterm -e "ncmpcpp"', shell=True)
         elif action == 'power_show':
             if not temp_info_active or temp_info_item != 'cur_power_selection':
                 WIDGETS['cur_power_selection'] = WIDGETS['power_help']
@@ -419,7 +404,7 @@ def perform_action():
             music_toggle()
             music()
         elif action == 'music_prev':
-            music_next(True)
+            music_prev()
             music()
         elif action == 'music_next':
             music_next()
@@ -428,3 +413,11 @@ def perform_action():
             activate_temp_info('wallpaper_help')
         elif action == 'change_wallpaper':
             subprocess.Popen('bash ~/wallpaper.sh next', shell=True)
+
+
+try:
+    while True:
+        time.sleep(0.1)
+except KeyboardInterrupt:
+    print("Keyboard Interrupt Detected. Exiting...")
+    sys.exit(0)
