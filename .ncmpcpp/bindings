@@ -18,3 +18,6 @@ def_key "G"
 
 def_key "L"
     show_lyrics
+
+def_key "d"
+  delete_playlist_items
