@@ -10,7 +10,6 @@ import subprocess
 import time
 from collections import defaultdict
 from threading import Thread
-import gtk
 import psutil
 import abc
 
