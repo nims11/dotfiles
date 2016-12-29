@@ -5,7 +5,8 @@ if empty(glob("~/.vim/autoload/plug.vim"))
 endif
 
 call plug#begin('~/.vim/plugged')
-Plug 'vim-airline/vim-airline'
+" Plug 'vim-airline/vim-airline'
+Plug 'ap/vim-buftabline'
 Plug 'tpope/vim-commentary'
 Plug 'plasticboy/vim-markdown', {'for': 'markdown'}
 Plug 'jiangmiao/auto-pairs'
@@ -28,7 +29,7 @@ Plug 'zchee/deoplete-jedi'
 Plug 'Rip-Rip/clang_complete'
 
 " themes
-Plug 'vim-airline/vim-airline-themes'
+" Plug 'vim-airline/vim-airline-themes'
 Plug 'flazz/vim-colorschemes'
 call plug#end()
 
@@ -104,14 +105,19 @@ nnoremap <leader>sw :w !sudo tee %<CR>
 " given column
 set synmaxcol=120
 
+" Statusline
+set statusline=\ %M\ %.20F\ %y\ %r
+set statusline+=%=
+set statusline+=%l/%L\ %3c
+
 " ==================== PLUGIN SETTINGS AND MAPPINGS ======================
 
 " enable the list of buffers
-let g:airline#extensions#tabline#enabled = 1
+" let g:airline#extensions#tabline#enabled = 1
 " show just the filename
-let g:airline#extensions#tabline#fnamemod = ':t'"
-let g:airline_powerline_fonts = 1
-let g:airline_theme='zenburn'
+" let g:airline#extensions#tabline#fnamemod = ':t'"
+" let g:airline_powerline_fonts = 1
+" let g:airline_theme='zenburn'
 
 " set netrw options
 let g:netrw_banner = 0
@@ -160,6 +166,13 @@ autocmd! User GoyoEnter nested call <SID>goyo_enter()
 autocmd! User GoyoLeave nested call <SID>goyo_leave()
 noremap <F5> <C-O>:Goyo<CR>
 
+let g:vimwiki_table_mappings = 0
+let g:buftabline_indicators = 1
+highlight BufTabLineFill ctermbg=0
+highlight BufTabLineHidden ctermbg=0
+highlight BufTabLineCurrent ctermbg=0 ctermfg=3
+highlight BufTabLineActive ctermbg=0 ctermfg=4
+
 " ==================== CUSTOM SETTINGS ======================
 
 " remove stray ^M
@@ -179,5 +192,3 @@ nnoremap <leader>cr :execute '!g++ --std=c++11 ' . shellescape(join([expand("%:r
     \ ' && ./a.out < '. shellescape(join([expand("%:r"), "in"], "."), 1)<CR>
 " copy code to clipboard
 nnoremap <leader>cc ggvG"+y``
-
-" hi Normal ctermbg=none
