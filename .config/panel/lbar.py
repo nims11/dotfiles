@@ -70,14 +70,17 @@ def schedule(time_in_seconds=None):
     return _scheduled
 
 # Brightness settings
-BRIGHT_FILE = '/sys/class/backlight/acpi_video0'
+BRIGHT_FILE = ['/sys/class/backlight/acpi_video0', '/sys/class/backlight/intel_backlight']
 MAX_BRIGHTNESS = 10
-try:
-    with open(os.path.join(BRIGHT_FILE, 'max_brightness')) as f:
-        MAX_BRIGHTNESS = int(f.read().strip())
-    BRIGHTNESS_FILE_AVAILABLE = True
-except:
-    BRIGHTNESS_FILE_AVAILABLE = False
+for file in BRIGHT_FILE:
+    try:
+        with open(os.path.join(file, 'max_brightness')) as f:
+            MAX_BRIGHTNESS = int(f.read().strip())
+        BRIGHTNESS_FILE_AVAILABLE = True
+        BRIGHT_FILE = file
+        break
+    except:
+        BRIGHTNESS_FILE_AVAILABLE = False
 
 # Power supply settings
 POWER_DIRECTORY = '/sys/class/power_supply/ACAD'
@@ -292,7 +295,7 @@ def wname():
 
 @schedule(3600)
 def update_package_list():
-    subprocess.call("sudo pacman -Sy", shell=True)
+    subprocess.call("sudo pacman_update_list", shell=True)
 
 def activate_temp_info(name):
     global temp_info_active, temp_info_mode, temp_info_item
@@ -323,10 +326,15 @@ def volume_up():
 def volume_down():
     subprocess.call('amixer -D pulse sset Master 3%-', shell=True)
 
+def set_brightness(val):
+    val = max(1, min(MAX_BRIGHTNESS, val))
+    brightness_file = os.path.join(BRIGHT_FILE, 'brightness')
+    subprocess.call('sudo adj_brightness "%s" %d' % (brightness_file, val), shell=True)
+
 def brightness_up():
-    subprocess.call('sudo tee "%s" <<< %d &>/dev/null' % (os.path.join(BRIGHT_FILE, 'brightness'), STATE['brightness']+1), shell=True)
+    set_brightness(STATE['brightness']+MAX_BRIGHTNESS//10)
 def brightness_down():
-    subprocess.call('sudo tee "%s" <<< %d &>/dev/null' % (os.path.join(BRIGHT_FILE, 'brightness'), STATE['brightness']-1), shell=True)
+    set_brightness(STATE['brightness']-MAX_BRIGHTNESS//10)
 
 def update_packages():
     subprocess.call("xterm -e 'sudo pacman -Syu; echo Press any key to continue... && read -n 1'", shell=True)
