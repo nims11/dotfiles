@@ -1,6 +1,8 @@
-- pacman -S tmux git neovim python2-neovim python-neovim pkg-config make fakeroot powerline-fonts clang gsimplecal alsa-utils pavucontrol python2-psutil psutils evince ttf-ubuntu-font-family ipython ipython2 gcc jupyter jupyter-notebook python-pylint python2-pylint i3lock compton artha mpd cantata ncmpcpp
-- yaourt -S ttf-font-awesome dmenu
-- install tpm and vim-plug
-- install lemonbar https://github.com/nims11/bar
-- https://github.com/powerline/fonts.git
+- `pacman -S tmux git neovim python2-neovim python-neovim pkg-config make fakeroot powerline-fonts clang gsimplecal alsa-utils pavucontrol python2-psutil psutils evince ttf-ubuntu-font-family ipython ipython2 gcc jupyter jupyter-notebook python-pylint python2-pylint i3lock compton artha mpd cantata ncmpcpp xdotool mpc imagemagick feh`
+- `yaourt -S ttf-font-awesome dmenu`
+- `git submodule update`
+- customize `~/.config/start-internet.sh`
+- move `~/scripts/adj_brightness` and `~/scripts/pacman_update_list` to `/usr/bin/` and add exception in sudoers
+- install lemonbar `https://github.com/nims11/bar`
+- `https://github.com/powerline/fonts.git`
 - https://github.com/enkore/j4-dmenu-desktop/issues/45
