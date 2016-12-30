@@ -39,6 +39,9 @@ BG = '#'+OPACITY+CONFIG.get('*.background', '#141311')[1:]
 FG = CONFIG.get('*.foreground', '#686766')
 ALTFG = CONFIG.get('*.background', '#141311')
 ALTBG = '#'+OPACITY+CONFIG.get('*.foreground', '#686766')[1:]
+FONT1SIZE = CONFIG.get('lbar.fontsize', '9')
+FONT2SIZE = int(FONT1SIZE) - 1
+BARHEIGHT = CONFIG.get('lbar.height', '25')
 
 
 # Weather settings
@@ -188,9 +191,8 @@ class Main(object):
 #     def update(self):
 #         return
 
-COMMAND='lemonbar -B%s -F%s -a 30 -b -g x25 -f "Ubuntu Mono-9" -f "FontAwesome-8"' % (BG, FG)
-if os.environ.get('HIDPI', False) == "1":
-    COMMAND='lemonbar -B%s -F%s -a 30 -b -g x35 -f "Ubuntu Mono-10" -f "FontAwesome-9"' % (BG, FG)
+COMMAND = 'lemonbar -B%s -F%s -a 30 -b -g x%s -f "Ubuntu Mono-%s" -f "FontAwesome-%s"' \
+    % (BG, FG, BARHEIGHT, FONT1SIZE, FONT2SIZE)
 
 main = Main(
     panel_str=u'%%{B%s}%%{l} %s %%{c} %s %%{r} %%{R}%s%%{R}  %s  %%{R} %s %%{R}\n',
