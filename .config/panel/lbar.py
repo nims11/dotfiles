@@ -39,6 +39,9 @@ BG = '#'+OPACITY+CONFIG.get('*.background', '#141311')[1:]
 FG = CONFIG.get('*.foreground', '#686766')
 ALTFG = CONFIG.get('*.background', '#141311')
 ALTBG = '#'+OPACITY+CONFIG.get('*.foreground', '#686766')[1:]
+FONT1SIZE = CONFIG.get('lbar.fontsize', '9')
+FONT2SIZE = int(FONT1SIZE) - 1
+BARHEIGHT = CONFIG.get('lbar.height', '25')
 
 
 # Weather settings
@@ -70,14 +73,17 @@ def schedule(time_in_seconds=None):
     return _scheduled
 
 # Brightness settings
-BRIGHT_FILE = '/sys/class/backlight/acpi_video0'
+BRIGHT_FILE = ['/sys/class/backlight/acpi_video0', '/sys/class/backlight/intel_backlight']
 MAX_BRIGHTNESS = 10
-try:
-    with open(os.path.join(BRIGHT_FILE, 'max_brightness')) as f:
-        MAX_BRIGHTNESS = int(f.read().strip())
-    BRIGHTNESS_FILE_AVAILABLE = True
-except:
-    BRIGHTNESS_FILE_AVAILABLE = False
+for file in BRIGHT_FILE:
+    try:
+        with open(os.path.join(file, 'max_brightness')) as f:
+            MAX_BRIGHTNESS = int(f.read().strip())
+        BRIGHTNESS_FILE_AVAILABLE = True
+        BRIGHT_FILE = file
+        break
+    except:
+        BRIGHTNESS_FILE_AVAILABLE = False
 
 # Power supply settings
 POWER_DIRECTORY = '/sys/class/power_supply/ACAD'
@@ -185,9 +191,8 @@ class Main(object):
 #     def update(self):
 #         return
 
-COMMAND='lemonbar -B%s -F%s -a 30 -b -g x25 -f "Ubuntu Mono-9" -f "FontAwesome-8"' % (BG, FG)
-if os.environ.get('HIDPI', False) == "1":
-    COMMAND='lemonbar -B%s -F%s -a 30 -b -g x35 -f "Ubuntu Mono-10" -f "FontAwesome-9"' % (BG, FG)
+COMMAND = 'lemonbar -B%s -F%s -a 30 -b -g x%s -f "Ubuntu Mono-%s" -f "FontAwesome-%s"' \
+    % (BG, FG, BARHEIGHT, FONT1SIZE, FONT2SIZE)
 
 main = Main(
     panel_str=u'%%{B%s}%%{l} %s %%{c} %s %%{r} %%{R}%s%%{R}  %s  %%{R} %s %%{R}\n',
@@ -292,7 +297,7 @@ def wname():
 
 @schedule(3600)
 def update_package_list():
-    subprocess.call("sudo pacman -Sy", shell=True)
+    subprocess.call("sudo pacman_update_list", shell=True)
 
 def activate_temp_info(name):
     global temp_info_active, temp_info_mode, temp_info_item
@@ -323,10 +328,15 @@ def volume_up():
 def volume_down():
     subprocess.call('amixer -D pulse sset Master 3%-', shell=True)
 
+def set_brightness(val):
+    val = max(1, min(MAX_BRIGHTNESS, val))
+    brightness_file = os.path.join(BRIGHT_FILE, 'brightness')
+    subprocess.call('sudo adj_brightness "%s" %d' % (brightness_file, val), shell=True)
+
 def brightness_up():
-    subprocess.call('sudo tee "%s" <<< %d &>/dev/null' % (os.path.join(BRIGHT_FILE, 'brightness'), STATE['brightness']+1), shell=True)
+    set_brightness(STATE['brightness']+MAX_BRIGHTNESS//10)
 def brightness_down():
-    subprocess.call('sudo tee "%s" <<< %d &>/dev/null' % (os.path.join(BRIGHT_FILE, 'brightness'), STATE['brightness']-1), shell=True)
+    set_brightness(STATE['brightness']-MAX_BRIGHTNESS//10)
 
 def update_packages():
     subprocess.call("xterm -e 'sudo pacman -Syu; echo Press any key to continue... && read -n 1'", shell=True)
