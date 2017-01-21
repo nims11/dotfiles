@@ -86,9 +86,19 @@ for file in BRIGHT_FILE:
         BRIGHTNESS_FILE_AVAILABLE = False
 
 # Power supply settings
-POWER_DIRECTORY = '/sys/class/power_supply/ACAD'
-AC_POWER_FILE = os.path.join(POWER_DIRECTORY, 'online')
-POWER_FILE_EXISTS = os.path.exists(AC_POWER_FILE)
+for dir in ['/sys/class/power_supply/ACAD', '/sys/class/power_supply/AC']:
+    if os.path.exists(os.path.join(dir, 'online')):
+        AC_POWER_FILE = os.path.join(dir, 'online')
+        break
+else:
+    AC_POWER_FILE = None
+
+for dir in ['/sys/class/power_supply/BAT0']:
+    if os.path.exists(os.path.join(dir, 'capacity')):
+        BAT_CAP_FILE = os.path.join(dir, 'capacity')
+        break
+else:
+    BAT_CAP_FILE = None
 
 WIDGETS = defaultdict(str)
 STATE = {}
@@ -112,6 +122,11 @@ ICONS = {
     'CPU'               : u'\uf0ae',
     'wallpaper'         : u'\uf108',
     'sync'              : u'\uf021',
+    'battery-0'         : u'\uf244',
+    'battery-1'         : u'\uf243',
+    'battery-2'         : u'\uf242',
+    'battery-3'         : u'\uf241',
+    'battery-4'         : u'\uf240',
 }
 
 POWER_COMMANDS = {
@@ -136,7 +151,7 @@ WIDGETS['wallpaper_help'] = 'Next Wallpaper'
 #### Helpers ####
 def progress(val, tot=100, bars=40, name=''):
     progress = (u'\u2588'*(bars*val//tot)) + (' '*(bars-bars*val//tot))
-    return u'%s \uf0d9 %s \uf0da %d/%d' % (name, progress, val, tot)
+    return u'%s \uf1d9 %s \uf0da %d/%d' % (name, progress, val, tot)
 
 #### Scheduled function ####
 class Main(object):
@@ -163,7 +178,7 @@ class Main(object):
         if temp_info_active:
             info_panel_item = WIDGETS.get(temp_info_item, '')
         panel_str = self.panel_str % (
-            BG if WIDGETS.get('ac_power', True) else '#500',
+            BG,
             WIDGETS['wname'],
             info_panel_item,
             WIDGETS['music'],
@@ -216,12 +231,30 @@ def set_volume_info():
     WIDGETS['volume'] = '%%{A:volume_more:}%%{A4:volume_up:}%%{A5:volume_down:}%%{A0:volume_show:}%s%%{A}%%{A}%%{A}%%{A}' % cur_icon
     WIDGETS['volume_bar'] = progress(cur_volume, name='[Volume]')
 
-if POWER_FILE_EXISTS:
-    @schedule(1)
+if AC_POWER_FILE != None:
+    @schedule(2)
     def set_ac_power():
         global WIDGETS
         with open(AC_POWER_FILE) as f:
             WIDGETS['ac_power'] = f.read().strip() != '0'
+
+if BAT_CAP_FILE != None:
+    @schedule(10)
+    def set_bat_cap():
+        global WIDGETS
+        with open(BAT_CAP_FILE) as f:
+            WIDGETS['battery'] = int(f.read().strip())
+            cap = WIDGETS['battery']
+            if cap <= 10:
+                WIDGETS['battery-icon'] = ICONS['battery-0']
+            elif 10 < cap < 40:
+                WIDGETS['battery-icon'] = ICONS['battery-1']
+            elif 40 <= cap < 65:
+                WIDGETS['battery-icon'] = ICONS['battery-2']
+            elif 65 <= cap < 90:
+                WIDGETS['battery-icon'] = ICONS['battery-3']
+            elif cap >= 90:
+                WIDGETS['battery-icon'] = ICONS['battery-4']
 
 if BRIGHTNESS_FILE_AVAILABLE:
     @schedule(10)
@@ -252,6 +285,12 @@ def set_weather_info():
 def set_sys_stat():
     vmem = psutil.virtual_memory()
     WIDGETS['sys_stat'] = '%%{A:system_status:}%s %2.0f%% %.2fGB%%{A}' % (ICONS['CPU'], psutil.cpu_percent(), vmem.used / float(2**30))
+    if AC_POWER_FILE != None or BAT_CAP_FILE != None:
+        WIDGETS['sys_stat'] += ' %%{F%s}%s%%{F-} %s' % (
+            CONFIG.get('*.color2', '#0F0') if WIDGETS.get('ac_power', True) else CONFIG.get('*.color1', '#F00'),
+            WIDGETS.get('battery-icon', ICONS['battery-0']),
+            str(WIDGETS.get('battery', ''))
+        )
 
 def get_music_status():
     """
