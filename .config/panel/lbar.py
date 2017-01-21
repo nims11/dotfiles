@@ -214,77 +214,15 @@ main = Main(
     command=COMMAND
 )
 
-@schedule(1)
 def clock():
     global WIDGETS
     WIDGETS['clock'] = b'%%{A0:date_show:}%%{A:calendar:}%s%%{A}%%{A}' % time.strftime('%H:%M:%S').encode()
 
-@schedule(2)
-def set_volume_info():
-    global WIDGETS
-    cur_volume = int(subprocess.check_output('amixer get Master | awk -F"[][]" \'/[.*?%]/{print $2}\' | head -1', shell=True).strip()[:-1])
-    cur_icon = ICONS['volume_high']
-    if cur_volume == 0:
-        cur_icon = ICONS['volume_mute']
-    elif cur_volume < 50:
-        cur_icon = ICONS['volume_low']
-    WIDGETS['volume'] = '%%{A:volume_more:}%%{A4:volume_up:}%%{A5:volume_down:}%%{A0:volume_show:}%s%%{A}%%{A}%%{A}%%{A}' % cur_icon
-    WIDGETS['volume_bar'] = progress(cur_volume, name='[Volume]')
-
-if AC_POWER_FILE != None:
-    @schedule(2)
-    def set_ac_power():
-        global WIDGETS
-        with open(AC_POWER_FILE) as f:
-            WIDGETS['ac_power'] = f.read().strip() != '0'
-
-if BAT_CAP_FILE != None:
-    @schedule(10)
-    def set_bat_cap():
-        global WIDGETS
-        with open(BAT_CAP_FILE) as f:
-            WIDGETS['battery'] = int(f.read().strip())
-            cap = WIDGETS['battery']
-            if cap <= 10:
-                WIDGETS['battery-icon'] = ICONS['battery-0']
-            elif 10 < cap < 40:
-                WIDGETS['battery-icon'] = ICONS['battery-1']
-            elif 40 <= cap < 65:
-                WIDGETS['battery-icon'] = ICONS['battery-2']
-            elif 65 <= cap < 90:
-                WIDGETS['battery-icon'] = ICONS['battery-3']
-            elif cap >= 90:
-                WIDGETS['battery-icon'] = ICONS['battery-4']
-
-if BRIGHTNESS_FILE_AVAILABLE:
-    @schedule(10)
-    def set_brightness_info():
-        global WIDGETS
-        brightness_val = 0
-        with open(os.path.join(BRIGHT_FILE, 'brightness')) as f:
-            brightness_val = int(f.read().strip())
-            STATE['brightness'] = brightness_val
-        WIDGETS['brightness_bar'] = progress(brightness_val, tot=MAX_BRIGHTNESS, name='[Brightness]')
-
-@schedule(600)
-def set_os_info():
-    global WIDGETS
-    os_version = subprocess.check_output('uname -sr', shell=True).strip()
-    update_count = int(subprocess.check_output('pacman -Qu | wc -l', shell=True).strip())
-    WIDGETS['os_info'] = '%s - %s Updates available' % (os_version, update_count)
-    if update_count > 0:
-        WIDGETS['os'] = '%%{F%s}%s%%{F-}' % (CONFIG.get('*.color2', '#8E7'), WIDGETS['os_plain'])
-    else:
-        WIDGETS['os'] = WIDGETS['os_plain']
-
-@schedule(600)
-def set_weather_info():
-    WIDGETS['weather_bar'] = '[Weather] ' + subprocess.check_output("curl --connect-timeout 15 -s '%s' | grep '<title>Currently' | sed -E 's/<.?title>//g' | sed 's/Currently://' | xargs" % WEATHER_URL, shell=True).strip()
-
-@schedule(1)
 def set_sys_stat():
     vmem = psutil.virtual_memory()
-    WIDGETS['sys_stat'] = '%%{A:system_status:}%s %2.0f%% %.2fGB%%{A}' % (ICONS['CPU'], psutil.cpu_percent(), vmem.used / float(2**30))
+    WIDGETS['sys_stat'] = '%%{A:system_status:}%s %2.0f%% %.2fGB%%{A}' % (
+        ICONS['CPU'], psutil.cpu_percent(), vmem.used / float(2**30)
+    )
     if AC_POWER_FILE != None or BAT_CAP_FILE != None:
         WIDGETS['sys_stat'] += ' %%{F%s}%s%%{F-} %s' % (
             CONFIG.get('*.color2', '#0F0') if WIDGETS.get('ac_power', True) else CONFIG.get('*.color1', '#F00'),
@@ -308,13 +246,102 @@ def get_music_status():
     status = 0 if status == '[playing]' else 1
     return status, cur_playing
 
-@schedule(1.5)
 def music():
     status, cur_playing = get_music_status()
     WIDGETS['music'] = '%%{A0:music_show:}%%{A:music_open:}  %s  %%{A}%%{A:music_prev:} %s %%{A} %%{A:music_toggle:} %s %%{A} %%{A:music_next:} %s %%{A} %%{A}' % (ICONS['music'], ICONS['prev'], ICONS['play'] if status != 0 else ICONS['pause'], ICONS['next'])
     if cur_playing != WIDGETS['cur_playing']:
         WIDGETS['cur_playing'] = cur_playing
         activate_temp_info('cur_playing')
+
+def set_volume_info():
+    global WIDGETS
+    cur_volume = int(subprocess.check_output('amixer get Master | awk -F"[][]" \'/[.*?%]/{print $2}\' | head -1', shell=True).strip()[:-1])
+    cur_icon = ICONS['volume_high']
+    if cur_volume == 0:
+        cur_icon = ICONS['volume_mute']
+    elif cur_volume < 50:
+        cur_icon = ICONS['volume_low']
+    WIDGETS['volume'] = '%%{A:volume_more:}%%{A4:volume_up:}%%{A5:volume_down:}%%{A0:volume_show:}%s%%{A}%%{A}%%{A}%%{A}' % cur_icon
+    WIDGETS['volume_bar'] = progress(cur_volume, name='[Volume]')
+
+def set_ac_power():
+    global WIDGETS
+    with open(AC_POWER_FILE) as f:
+        WIDGETS['ac_power'] = f.read().strip() != '0'
+
+def set_brightness_info():
+    global WIDGETS
+    brightness_val = 0
+    with open(os.path.join(BRIGHT_FILE, 'brightness')) as f:
+        brightness_val = int(f.read().strip())
+        STATE['brightness'] = brightness_val
+    WIDGETS['brightness_bar'] = progress(brightness_val, tot=MAX_BRIGHTNESS, name='[Brightness]')
+
+def set_os_info():
+    global WIDGETS
+    os_version = subprocess.check_output('uname -sr', shell=True).strip()
+    update_count = int(subprocess.check_output('pacman -Qu | wc -l', shell=True).strip())
+    WIDGETS['os_info'] = '%s - %s Updates available' % (os_version, update_count)
+    if update_count > 0:
+        WIDGETS['os'] = '%%{F%s}%s%%{F-}' % (CONFIG.get('*.color2', '#8E7'), WIDGETS['os_plain'])
+    else:
+        WIDGETS['os'] = WIDGETS['os_plain']
+
+def set_weather_info():
+    WIDGETS['weather_bar'] = '[Weather] ' + subprocess.check_output("curl --connect-timeout 15 -s '%s' | grep '<title>Currently' | sed -E 's/<.?title>//g' | sed 's/Currently://' | xargs" % WEATHER_URL, shell=True).strip()
+
+def set_bat_cap():
+    global WIDGETS
+    with open(BAT_CAP_FILE) as f:
+        WIDGETS['battery'] = int(f.read().strip())
+        cap = WIDGETS['battery']
+        if cap <= 10:
+            WIDGETS['battery-icon'] = ICONS['battery-0']
+        elif 10 < cap < 40:
+            WIDGETS['battery-icon'] = ICONS['battery-1']
+        elif 40 <= cap < 65:
+            WIDGETS['battery-icon'] = ICONS['battery-2']
+        elif 65 <= cap < 90:
+            WIDGETS['battery-icon'] = ICONS['battery-3']
+        elif cap >= 90:
+            WIDGETS['battery-icon'] = ICONS['battery-4']
+
+def wname():
+    global WIDGETS
+    active_window = subprocess.check_output('xdotool getwindowfocus getwindowname', shell=True).strip()
+    if len(active_window) > ACTIVE_WIN_MAX_LEN:
+        active_window = active_window[:ACTIVE_WIN_MAX_LEN] + '...'
+    WIDGETS['wname'] = '%%{A:window_switcher:}%s%%{A}' % (active_window)
+    main.redraw()
+
+@schedule(0.2)
+def ultra_high_priority_jobs():
+    wname()
+
+@schedule(1)
+def high_priority_jobs():
+    clock()
+    set_sys_stat()
+    music()
+
+@schedule(2)
+def medium_priority_jobs():
+    set_volume_info()
+    if BRIGHTNESS_FILE_AVAILABLE:
+        set_brightness_info()
+    if AC_POWER_FILE != None:
+        set_ac_power()
+
+@schedule(10)
+def low_priority_jobs():
+    if BAT_CAP_FILE != None:
+        set_bat_cap()
+
+@schedule(600)
+def shit_priority_jobs():
+    set_os_info()
+    set_weather_info()
+    subprocess.call("sudo pacman_update_list", shell=True)
 
 def music_toggle():
     subprocess.Popen('mpc toggle >/dev/null', shell=True)
@@ -324,19 +351,6 @@ def music_next():
 
 def music_prev():
     subprocess.Popen('mpc prev >/dev/null', shell=True)
-
-@schedule(0.2)
-def wname():
-    global WIDGETS
-    active_window = subprocess.check_output('xdotool getwindowfocus getwindowname', shell=True).strip()
-    if len(active_window) > ACTIVE_WIN_MAX_LEN:
-        active_window = active_window[:ACTIVE_WIN_MAX_LEN] + '...'
-    WIDGETS['wname'] = '%%{A:window_switcher:}%s%%{A}' % (active_window)
-    main.redraw()
-
-@schedule(3600)
-def update_package_list():
-    subprocess.call("sudo pacman_update_list", shell=True)
 
 def activate_temp_info(name):
     global temp_info_active, temp_info_mode, temp_info_item
