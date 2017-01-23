@@ -179,7 +179,7 @@ class Main(object):
             info_panel_item = WIDGETS.get(temp_info_item, '')
         panel_str = self.panel_str % (
             BG,
-            WIDGETS['wname'],
+            WIDGETS['wname'].decode('utf8'),
             info_panel_item,
             WIDGETS['music'],
             ' '.join(WIDGETS[x] for x in ('weather', 'os', 'wallpaper', 'brightness', 'volume', 'power')),
@@ -311,8 +311,10 @@ def wname():
     active_window = subprocess.check_output('xdotool getwindowfocus getwindowname', shell=True).strip()
     if len(active_window) > ACTIVE_WIN_MAX_LEN:
         active_window = active_window[:ACTIVE_WIN_MAX_LEN] + '...'
+    prev = WIDGETS['wname']
     WIDGETS['wname'] = '%%{A:window_switcher:}%s%%{A}' % (active_window)
-    main.redraw()
+    if prev != WIDGETS['wname']:
+        main.redraw()
 
 @schedule(0.2)
 def ultra_high_priority_jobs():
@@ -323,6 +325,7 @@ def high_priority_jobs():
     clock()
     set_sys_stat()
     music()
+    main.redraw()
 
 @schedule(2)
 def medium_priority_jobs():
