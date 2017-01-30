@@ -360,6 +360,7 @@ def activate_temp_info(name):
     temp_info_active = True
     temp_info_mode = True
     temp_info_item = name
+    main.redraw()
 
 @schedule(None)
 def temp_info_counter():

@@ -5,7 +5,6 @@ if empty(glob("~/.vim/autoload/plug.vim"))
 endif
 
 call plug#begin('~/.vim/plugged')
-" Plug 'vim-airline/vim-airline'
 Plug 'ap/vim-buftabline'
 Plug 'tpope/vim-commentary'
 Plug 'plasticboy/vim-markdown', {'for': 'markdown'}
@@ -29,7 +28,6 @@ Plug 'zchee/deoplete-jedi'
 Plug 'Rip-Rip/clang_complete'
 
 " themes
-" Plug 'vim-airline/vim-airline-themes'
 Plug 'flazz/vim-colorschemes'
 call plug#end()
 
@@ -106,7 +104,7 @@ nnoremap <leader>sw :w !sudo tee %<CR>
 set synmaxcol=120
 
 " Statusline
-set statusline=\ %M\ %.20F\ %y\ %r
+set statusline=\ %M\ %.20f\ %y\ %r
 set statusline+=%=
 set statusline+=%l/%L\ %3c
 
