@@ -110,6 +110,9 @@ set statusline=\ %M\ %.20F\ %y\ %r
 set statusline+=%=
 set statusline+=%l/%L\ %3c
 
+set conceallevel=0
+au FileType tex setl textwidth=80
+
 " ==================== PLUGIN SETTINGS AND MAPPINGS ======================
 
 " enable the list of buffers
@@ -180,7 +183,7 @@ noremap <leader>m mmHmt:%s/<C-V><cr>//ge<cr>'tzt'm
 
 " open/source .vimrc
 :nnoremap <leader>ev :vsplit $MYVIMRC<cr>
-:nnoremap <leader>sv :so $MYVIMRC<cr>
+:nnoremap <leader>sv :e $MYVIMRC<cr>
 
 nnoremap <C-p> :w \| !firefox %<CR><CR>
 

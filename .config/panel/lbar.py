@@ -151,7 +151,7 @@ WIDGETS['wallpaper_help'] = 'Next Wallpaper'
 #### Helpers ####
 def progress(val, tot=100, bars=40, name=''):
     progress = (u'\u2588'*(bars*val//tot)) + (' '*(bars-bars*val//tot))
-    return u'%s \uf1d9 %s \uf0da %d/%d' % (name, progress, val, tot)
+    return u'%s \uf053 %s \uf054 %d/%d' % (name, progress, val, tot)
 
 #### Scheduled function ####
 class Main(object):
