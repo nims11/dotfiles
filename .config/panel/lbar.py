@@ -127,6 +127,7 @@ ICONS = {
     'battery-2'         : u'\uf242',
     'battery-3'         : u'\uf241',
     'battery-4'         : u'\uf240',
+    'disk'              : u'\uf1c0',
 }
 
 POWER_COMMANDS = {
@@ -218,10 +219,22 @@ def clock():
     global WIDGETS
     WIDGETS['clock'] = b'%%{A0:date_show:}%%{A:calendar:}%s%%{A}%%{A}' % time.strftime('%H:%M:%S').encode()
 
+def human_friendly(bytes):
+    units = 'BKMG'
+    for unit in units:
+        if bytes < 100:
+            return '%4.1f %s/s' % (bytes, unit)
+        bytes /= 1024.0
+    return '%4.1f %s/s' % (bytes, unit)
+
 def set_sys_stat():
     vmem = psutil.virtual_memory()
-    WIDGETS['sys_stat'] = '%%{A:system_status:}%s %2.0f%% %.2fGB%%{A}' % (
-        ICONS['CPU'], psutil.cpu_percent(), vmem.used / float(2**30)
+    io_data = psutil.disk_io_counters()
+    io_bytes = io_data.write_bytes + io_data.read_bytes
+    rate = io_bytes - WIDGETS.get('io_bytes', 0)
+    WIDGETS['io_bytes'] = io_bytes
+    WIDGETS['sys_stat'] = '%%{A:system_status:}%s %2.0f%% %.2fGB  %s %s%%{A}' % (
+        ICONS['CPU'], psutil.cpu_percent(), vmem.used / float(2**30), ICONS['disk'], human_friendly(rate)
     )
     if AC_POWER_FILE != None or BAT_CAP_FILE != None:
         WIDGETS['sys_stat'] += ' %%{F%s}%s%%{F-} %s' % (
