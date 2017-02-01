@@ -150,7 +150,7 @@ let g:UltiSnipsSnippetDirectories=[$HOME.'/.vim/ultisnips']
 " neomake settings
 let g:neomake_cpp_clang_args = ["-std=c++14", "-Wall", "-Wshadow", "-g"]
 let g:neomake_cpp_enabled_makers = ['clang']
-let g:neomake_python_pylint_exe = 'pylint2'
+let g:neomake_python_pylint_exe = 'pylint'
 autocmd! BufWritePost * Neomake
 
 " goyo settings
