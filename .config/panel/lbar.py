@@ -396,7 +396,7 @@ def brightness_down():
     set_brightness(STATE['brightness']-MAX_BRIGHTNESS//10)
 
 def update_packages():
-    subprocess.call("xterm -e 'sudo pacman -Syu; echo Press any key to continue... && read -n 1'", shell=True)
+    subprocess.call("termite -e 'bash -c \"sudo pacman -Syu; echo Press any key to continue... && read -n 1\"'", shell=True)
     set_os_info()
 
 @schedule(None)
@@ -441,11 +441,11 @@ def perform_action():
         elif action == 'weather_show':
             activate_temp_info('weather_bar')
         elif action == 'weather_open':
-            subprocess.Popen('xterm -maximized -e "curl wttr.in && read -n 1"', shell=True)
+            subprocess.Popen('termite -e "bash -c \'curl wttr.in && read -n 1\'"', shell=True)
         elif action == 'system_status':
-            subprocess.Popen('xterm -maximized -e "htop"', shell=True)
+            subprocess.Popen('termite -e "htop"', shell=True)
         elif action == 'music_open':
-            subprocess.Popen('xterm -e "ncmpcpp"', shell=True)
+            subprocess.Popen('termite -e "ncmpcpp"', shell=True)
         elif action == 'power_show':
             if not temp_info_active or temp_info_item != 'cur_power_selection':
                 WIDGETS['cur_power_selection'] = WIDGETS['power_help']
