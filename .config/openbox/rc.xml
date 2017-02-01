@@ -885,21 +885,9 @@
   # end of the example
 -->
     <application/>
-    <application name="RootTerm">
-        <decor>no</decor>
-        <skip_taskbar>yes</skip_taskbar>
-        <skip_pager>yes</skip_pager>
-        <layer>normal</layer>
-        <position>
-            <x>center</x>
-            <y>0</y>
-        </position>
-        <focus>yes</focus>
-        <desktop>all</desktop>
-        <maximized>true</maximized>
-    </application>
     <application class="*">
         <decor>no</decor>
+        <maximized>yes</maximized>
     </application>
 </applications>
 </openbox_config>
