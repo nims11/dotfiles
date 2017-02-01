@@ -127,7 +127,8 @@ ICONS = {
     'battery-2'         : u'\uf242',
     'battery-3'         : u'\uf241',
     'battery-4'         : u'\uf240',
-    'disk'              : u'\uf1c0',
+    'disk'              : u'\uf01c',
+    'net'               : u'\uf1eb',
 }
 
 POWER_COMMANDS = {
@@ -231,10 +232,17 @@ def set_sys_stat():
     vmem = psutil.virtual_memory()
     io_data = psutil.disk_io_counters()
     io_bytes = io_data.write_bytes + io_data.read_bytes
-    rate = io_bytes - WIDGETS.get('io_bytes', 0)
+    io_rate = io_bytes - WIDGETS.get('io_bytes', 0)
     WIDGETS['io_bytes'] = io_bytes
-    WIDGETS['sys_stat'] = '%%{A:system_status:}%s %2.0f%% %.2fGB  %s %s%%{A}' % (
-        ICONS['CPU'], psutil.cpu_percent(), vmem.used / float(2**30), ICONS['disk'], human_friendly(rate)
+
+    nw_data = psutil.net_io_counters()
+    nw_bytes = nw_data.bytes_sent + nw_data.bytes_recv
+    nw_rate = nw_bytes - WIDGETS.get('nw_bytes', 0)
+    WIDGETS['nw_bytes'] = nw_bytes
+    WIDGETS['sys_stat'] = '%%{A:system_status:}%s %2.0f%% %.2fGB  %s %s  %s %s%%{A}' % (
+        ICONS['CPU'], psutil.cpu_percent(), vmem.used / float(2**30),
+        ICONS['disk'], human_friendly(io_rate),
+        ICONS['net'], human_friendly(nw_rate)
     )
     if AC_POWER_FILE != None or BAT_CAP_FILE != None:
         WIDGETS['sys_stat'] += ' %%{F%s}%s%%{F-} %s' % (
