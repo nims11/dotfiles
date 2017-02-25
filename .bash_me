@@ -43,3 +43,25 @@ function pydefault(){
 
 keychain ~/.ssh/id_rsa C838FC13F0FD455541C590412B6DAF67FFAE3F83 --quiet --agents ssh,gpg
 . ~/.keychain/$(hostname)-sh
+
+function latexmake(){
+    latexmk -pdf "$1" > /dev/null 2>&1
+    STATUS=$?
+    rubber-info --check "$1"
+    rubber-info --boxes "$1"
+    return $STATUS
+}
+function previewtex(){
+    EVINCE_OPEN=0
+    while true; do
+        latexmake "$1" < /dev/null
+        STATUS=$?
+        if [[ $EVINCE_OPEN == 0 ]]; then
+            if [[ $STATUS == 0 ]]; then
+                evince "${1%%tex}pdf" &
+                EVINCE_OPEN=1
+            fi
+        fi
+        inotifywait -e close_write "$1"
+    done
+}
