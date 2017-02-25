@@ -7,7 +7,6 @@ endif
 call plug#begin('~/.vim/plugged')
 Plug 'ap/vim-buftabline'
 Plug 'tpope/vim-commentary'
-Plug 'plasticboy/vim-markdown', {'for': 'markdown'}
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-surround'
 Plug 'Shougo/deoplete.nvim'
@@ -108,7 +107,9 @@ set statusline=\ %M\ %.20f\ %y\ %r
 set statusline+=%=
 set statusline+=%l/%L\ %3c
 
-set conceallevel=0
+" Conceal is turned on only in normal mode
+set concealcursor=n
+
 au FileType tex setl textwidth=80
 
 " ==================== PLUGIN SETTINGS AND MAPPINGS ======================

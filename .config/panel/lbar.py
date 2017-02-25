@@ -245,7 +245,7 @@ def set_sys_stat():
         ICONS['net'], human_friendly(nw_rate)
     )
     if AC_POWER_FILE != None or BAT_CAP_FILE != None:
-        WIDGETS['sys_stat'] += ' %%{F%s}%s%%{F-} %s' % (
+        WIDGETS['sys_stat'] += '  %%{F%s}%s%%{F-} %s' % (
             CONFIG.get('*.color2', '#0F0') if WIDGETS.get('ac_power', True) else CONFIG.get('*.color1', '#F00'),
             WIDGETS.get('battery-icon', ICONS['battery-0']),
             str(WIDGETS.get('battery', ''))
