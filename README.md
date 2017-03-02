@@ -6,3 +6,4 @@
 - install lemonbar `https://github.com/nims11/bar`
 - `https://github.com/powerline/fonts.git`
 - https://github.com/enkore/j4-dmenu-desktop/issues/45
+- https://github.com/neovim/neovim/issues/2048#issuecomment-78045837 (for vim tmux navigation)
