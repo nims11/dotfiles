@@ -108,9 +108,9 @@ set statusline+=%=
 set statusline+=%l/%L\ %3c
 
 " Conceal is turned on only in normal mode
-set concealcursor=n
 
 au FileType tex setl textwidth=80
+au FileType tex setl conceallevel=0
 
 " ==================== PLUGIN SETTINGS AND MAPPINGS ======================
 
