@@ -38,3 +38,5 @@
 
 *.opacity:      #FF
 lbar.location:  waterloo
+lbar.fontsize:	12
+lbar.height:	35

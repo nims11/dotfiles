@@ -12,14 +12,14 @@ Plug 'tpope/vim-surround'
 Plug 'Shougo/deoplete.nvim'
 Plug 'SirVer/ultisnips'
 Plug 'sjl/gundo.vim'
-" Plug 'tmhedberg/SimpylFold'
 Plug 'Yggdroot/indentLine'
 Plug 'neomake/neomake'
 Plug 'junegunn/goyo.vim'
-Plug 'hynek/vim-python-pep8-indent'
+" Plug 'hynek/vim-python-pep8-indent'
 Plug 'airblade/vim-gitgutter'
 Plug 'sheerun/vim-polyglot'
 Plug 'vimwiki/vimwiki'
+Plug 'christoomey/vim-tmux-navigator'
 
 " deoplete external sources
 Plug 'eagletmt/neco-ghc'
@@ -108,9 +108,9 @@ set statusline+=%=
 set statusline+=%l/%L\ %3c
 
 " Conceal is turned on only in normal mode
-set concealcursor=n
 
 au FileType tex setl textwidth=80
+au FileType tex setl conceallevel=0
 
 " ==================== PLUGIN SETTINGS AND MAPPINGS ======================
 
@@ -127,7 +127,7 @@ let g:netrw_liststyle = 3
 let g:netrw_browse_split = 4
 let g:netrw_altv = 1
 let g:netrw_winsize = 25
-nnoremap <leader><TAB> :Vexplore<cr>
+nnoremap <leader><TAB> :Lexplore<cr>
 
 " comment line
 nmap <space> gcc
