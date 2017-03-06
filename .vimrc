@@ -43,6 +43,8 @@ set tm=400                    " Time waited for special sequences
 set noerrorbells novisualbell
 set hidden
 colorscheme molokai_dark
+highlight ColorColumn ctermbg=red
+call matchadd('ColorColumn', '\%81v', 100)
 
 " ==================== BASIC EDITOR SETTINGS AND MAPPINGS ====================
 " set leader key
@@ -87,6 +89,8 @@ nmap <leader>bq :bp <BAR> bd #<CR>
 
 " remap command key
 inoremap jk <esc>
+
+nnoremap ; :
 
 " open at the previous cursor position
 autocmd! BufReadPost *
@@ -181,8 +185,8 @@ highlight BufTabLineActive ctermbg=0 ctermfg=4
 noremap <leader>m mmHmt:%s/<C-V><cr>//ge<cr>'tzt'm
 
 " open/source .vimrc
-:nnoremap <leader>ev :vsplit $MYVIMRC<cr>
-:nnoremap <leader>sv :e $MYVIMRC<cr>
+:nnoremap <leader>ev :e $MYVIMRC<cr>
+:nnoremap <leader>sv :so $MYVIMRC<cr>
 
 nnoremap <C-p> :w \| !firefox %<CR><CR>
 

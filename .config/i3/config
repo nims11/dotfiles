@@ -10,6 +10,7 @@
 # Please see http://i3wm.org/docs/userguide.html for a complete reference!
 
 set $mod Mod4
+set $alt Mod1
 
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
@@ -33,7 +34,7 @@ floating_modifier $mod
 bindsym $mod+Return exec termite
 
 # kill focused window
-bindsym $mod+Shift+x kill
+bindsym $alt+F4 kill
 
 # start dmenu (a program launcher)
 bindsym $mod+space exec ~/scripts/j4-dmenu-launcher.sh
@@ -151,7 +152,6 @@ bindsym $mod+r mode "resize"
 bindsym Control+$mod+l exec "i3lock -i /tmp/cur_wallpaper.png"
 
 exec ~/.config/i3/autostart.sh
-hide_edge_borders both
 assign [class="Firefox"] 2
 focus_follows_mouse no
 
@@ -170,3 +170,9 @@ bar {
     height $height
 }
 new_window none
+new_window pixel 2
+
+gaps inner 5
+gaps outer 0
+smart_gaps on
+smart_borders on
