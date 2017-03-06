@@ -184,8 +184,6 @@ noremap <leader>m mmHmt:%s/<C-V><cr>//ge<cr>'tzt'm
 :nnoremap <leader>ev :vsplit $MYVIMRC<cr>
 :nnoremap <leader>sv :e $MYVIMRC<cr>
 
-nnoremap <C-p> :w \| !firefox %<CR><CR>
-
 " competitive programming stuffs
 " open input file
 nnoremap <leader>ci :execute "vsplit %:r.in"<CR><C-W>r<CR>
