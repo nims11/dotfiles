@@ -13,7 +13,7 @@ Plug 'Shougo/deoplete.nvim'
 Plug 'SirVer/ultisnips'
 Plug 'sjl/gundo.vim'
 Plug 'Yggdroot/indentLine'
-Plug 'neomake/neomake'
+Plug 'w0rp/ale'
 Plug 'junegunn/goyo.vim'
 " Plug 'hynek/vim-python-pep8-indent'
 Plug 'airblade/vim-gitgutter'
@@ -22,7 +22,6 @@ Plug 'vimwiki/vimwiki'
 Plug 'christoomey/vim-tmux-navigator'
 
 " deoplete external sources
-Plug 'eagletmt/neco-ghc'
 Plug 'zchee/deoplete-jedi'
 Plug 'Rip-Rip/clang_complete'
 
@@ -152,11 +151,10 @@ autocmd! CompleteDone * pclose!
 " ultisnips settings
 let g:UltiSnipsSnippetDirectories=[$HOME.'/.vim/ultisnips']
 
-" neomake settings
-let g:neomake_cpp_clang_args = ["-std=c++14", "-Wall", "-Wshadow", "-g"]
-let g:neomake_cpp_enabled_makers = ['clang']
-let g:neomake_python_pylint_exe = 'pylint'
-autocmd! BufWritePost * Neomake
+" ale settings
+let g:ale_lint_on_text_changed = 0
+let g:ale_lint_on_save = 1
+let g:ale_cpp_gcc_options = '-std=c++14 -Wall -Wshadow'
 
 " goyo settings
 let g:goyo_width = 120
