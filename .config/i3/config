@@ -151,6 +151,11 @@ mode "resize" {
 bindsym $mod+r mode "resize"
 bindsym Control+$mod+l exec "i3lock -i /tmp/cur_wallpaper.png"
 
+# Volume control
+bindsym XF86AudioRaiseVolume exec "pactl set-sink-volume 0 +5%"
+bindsym XF86AudioLowerVolume exec "pactl set-sink-volume 0 -5%"
+bindsym XF86AudioMute exec "pactl set-sink-mute 0 toggle"
+
 exec ~/.config/i3/autostart.sh
 assign [class="Firefox"] 2
 focus_follows_mouse no

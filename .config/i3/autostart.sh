@@ -1,7 +1,7 @@
 #!/bin/bash
 ~/.config/colorscheme.sh apply &
 (~/wallpaper.sh; i3lock -i /tmp/cur_wallpaper.png) &
-compton -b
+compton -b --config ~/.config/compton.conf
 artha &
 termite &
 ~/.config/start-internet.sh &
