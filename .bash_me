@@ -51,8 +51,11 @@ function latexmake(){
     rubber-info --boxes "$1"
     return $STATUS
 }
+
 function previewtex(){
     EVINCE_OPEN=0
+    DIR=$(dirname "$1")
+    DIR=$(cd $DIR && pwd)
     while true; do
         latexmake "$1" < /dev/null
         STATUS=$?
@@ -62,6 +65,6 @@ function previewtex(){
                 EVINCE_OPEN=1
             fi
         fi
-        inotifywait -e close_write "$1"
+        inotifywait -e close_write "$DIR"
     done
 }
