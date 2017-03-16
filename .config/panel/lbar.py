@@ -147,8 +147,8 @@ WIDGETS['weather'] = '%%{A:weather_open:}%%{A0:weather_show:}%s%%{A}%%{A}' % ICO
 WIDGETS['power'] = '%%{A0:power_show:}%%{A3:power_next:}%%{A:power_select:}%s%%{A}%%{A}%%{A}' % (ICONS['power'])
 WIDGETS['power_help'] = '[Power Options] Right Click To Navigate, Left Click To Select'
 WIDGETS['cur_power_selection'] = ''
-WIDGETS['wallpaper'] = '%%{A0:wallpaper_help:}%%{A:change_wallpaper:}%s%%{A}%%{A}' % ICONS['wallpaper']
-WIDGETS['wallpaper_help'] = 'Next Wallpaper'
+WIDGETS['wallpaper'] = '%%{A0:wallpaper_help:}%%{A:next_wallpaper:}%%{A3:random_wallpaper:}%s%%{A}%%{A}%%{A}' % ICONS['wallpaper']
+WIDGETS['wallpaper_help'] = 'Next Wallpaper [left click] / Random Wallpaper [right click]'
 
 #### Helpers ####
 def progress(val, tot=100, bars=40, name=''):
@@ -498,8 +498,10 @@ def perform_action():
             music()
         elif action == 'wallpaper_help':
             activate_temp_info('wallpaper_help')
-        elif action == 'change_wallpaper':
+        elif action == 'next_wallpaper':
             subprocess.Popen('bash ~/wallpaper.sh next', shell=True)
+        elif action == 'random_wallpaper':
+            subprocess.Popen('bash ~/wallpaper.sh', shell=True)
 
 
 try:
