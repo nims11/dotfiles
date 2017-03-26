@@ -41,8 +41,8 @@ set so=12                     " avoid cursor getting to extreme bottom/top
 set tm=400                    " Time waited for special sequences
 set noerrorbells novisualbell
 set hidden
-colorscheme molokai_dark
-highlight ColorColumn ctermbg=red
+colorscheme zenburn
+highlight ColorColumn ctermbg=1
 call matchadd('ColorColumn', '\%81v', 100)
 
 " ==================== BASIC EDITOR SETTINGS AND MAPPINGS ====================
@@ -106,9 +106,19 @@ nnoremap <leader>sw :w !sudo tee %<CR>
 set synmaxcol=120
 
 " Statusline
-set statusline=\ %M\ %.20f\ %y\ %r
+set statusline=\ %M\ %y\ %r
 set statusline+=%=
-set statusline+=%l/%L\ %3c
+set statusline+=%f
+set statusline+=%=
+set statusline+=[L]\ %3l/%L\ \ [C]\ %2c\ 
+
+" Theming
+hi Statusline ctermbg=3 ctermfg=8
+hi StatuslineNC ctermbg=7 ctermfg=0
+hi CursorLineNr ctermfg=3 ctermbg=8
+hi LineNr ctermfg=7 ctermbg=8
+hi Normal ctermfg=15 ctermbg=None
+hi CursorLine ctermbg=0
 
 " Conceal is turned on only in normal mode
 
@@ -165,10 +175,10 @@ noremap <F5> <C-O>:Goyo<CR>
 
 let g:vimwiki_table_mappings = 0
 let g:buftabline_indicators = 1
-highlight BufTabLineFill ctermbg=0
-highlight BufTabLineHidden ctermbg=0
-highlight BufTabLineCurrent ctermbg=0 ctermfg=3
-highlight BufTabLineActive ctermbg=0 ctermfg=4
+highlight BufTabLineFill ctermbg=8
+highlight BufTabLineHidden ctermbg=8
+highlight BufTabLineCurrent ctermbg=None ctermfg=3
+highlight BufTabLineActive ctermbg=8 ctermfg=4
 
 " ==================== CUSTOM SETTINGS ======================
 
