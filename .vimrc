@@ -42,7 +42,7 @@ set tm=400                    " Time waited for special sequences
 set noerrorbells novisualbell
 set hidden
 colorscheme molokai_dark
-highlight ColorColumn ctermbg=red
+highlight ColorColumn ctermbg=1
 call matchadd('ColorColumn', '\%81v', 100)
 
 " ==================== BASIC EDITOR SETTINGS AND MAPPINGS ====================
@@ -106,9 +106,11 @@ nnoremap <leader>sw :w !sudo tee %<CR>
 set synmaxcol=120
 
 " Statusline
-set statusline=\ %M\ %.20f\ %y\ %r
+set statusline=\ %M\ %y\ %r
 set statusline+=%=
-set statusline+=%l/%L\ %3c
+set statusline+=%f
+set statusline+=%=
+set statusline+=[L]\ %3l/%L\ \ [C]\ %2c\ 
 
 " Conceal is turned on only in normal mode
 
@@ -165,10 +167,10 @@ noremap <F5> <C-O>:Goyo<CR>
 
 let g:vimwiki_table_mappings = 0
 let g:buftabline_indicators = 1
-highlight BufTabLineFill ctermbg=0
-highlight BufTabLineHidden ctermbg=0
+highlight BufTabLineFill ctermbg=8
+highlight BufTabLineHidden ctermbg=8
 highlight BufTabLineCurrent ctermbg=0 ctermfg=3
-highlight BufTabLineActive ctermbg=0 ctermfg=4
+highlight BufTabLineActive ctermbg=8 ctermfg=4
 
 " ==================== CUSTOM SETTINGS ======================
 
