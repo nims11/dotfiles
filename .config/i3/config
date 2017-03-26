@@ -157,7 +157,12 @@ bindsym XF86AudioLowerVolume exec "pactl set-sink-volume 0 -5%"
 bindsym XF86AudioMute exec "pactl set-sink-mute 0 toggle"
 
 exec ~/.config/i3/autostart.sh
+
+# assign applications to workspaces
 assign [class="Firefox"] 2
+assign [class="Chromium"] 2
+assign [class="Steam"] 3
+
 focus_follows_mouse no
 
 set_from_resource $bg background #000000

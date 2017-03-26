@@ -62,7 +62,7 @@ set synmaxcol=120
 " search options
 set ignorecase smartcase incsearch
 " clear highlighting
-nmap // :noh<cr>
+nnoremap // :noh<cr>
 
 " disable extra files created by vim
 set nobackup nowb noswapfile
@@ -116,13 +116,6 @@ au FileType tex setl textwidth=80
 au FileType tex setl conceallevel=0
 
 " ==================== PLUGIN SETTINGS AND MAPPINGS ======================
-
-" enable the list of buffers
-" let g:airline#extensions#tabline#enabled = 1
-" show just the filename
-" let g:airline#extensions#tabline#fnamemod = ':t'"
-" let g:airline_powerline_fonts = 1
-" let g:airline_theme='zenburn'
 
 " set netrw options
 let g:netrw_banner = 0
@@ -193,4 +186,4 @@ nnoremap <leader>ci :execute "vsplit %:r.in"<CR><C-W>r<CR>
 nnoremap <leader>cr :execute '!g++ --std=c++11 ' . shellescape(join([expand("%:r"),"cpp"],"."),1).
     \ ' && ./a.out < '. shellescape(join([expand("%:r"), "in"], "."), 1)<CR>
 " copy code to clipboard
-nnoremap <leader>cc ggvG"+y``
+nnoremap <leader>cc gg"+yG
