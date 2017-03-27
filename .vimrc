@@ -12,14 +12,14 @@ Plug 'tpope/vim-surround'
 Plug 'Shougo/deoplete.nvim'
 Plug 'SirVer/ultisnips'
 Plug 'sjl/gundo.vim'
-Plug 'Yggdroot/indentLine'
+Plug 'nathanaelkane/vim-indent-guides'
 Plug 'w0rp/ale'
-Plug 'junegunn/goyo.vim'
 " Plug 'hynek/vim-python-pep8-indent'
 Plug 'airblade/vim-gitgutter'
 Plug 'sheerun/vim-polyglot'
 Plug 'vimwiki/vimwiki'
 Plug 'christoomey/vim-tmux-navigator'
+Plug 'ctrlpvim/ctrlp.vim'
 
 " deoplete external sources
 Plug 'zchee/deoplete-jedi'
@@ -125,6 +125,9 @@ hi CursorLine ctermbg=0
 au FileType tex setl textwidth=80
 au FileType tex setl conceallevel=0
 
+" Set spell checks
+autocmd FileType tex setlocal spell
+
 " ==================== PLUGIN SETTINGS AND MAPPINGS ======================
 
 " set netrw options
@@ -159,26 +162,20 @@ let g:ale_lint_on_text_changed = 0
 let g:ale_lint_on_save = 1
 let g:ale_cpp_gcc_options = '-std=c++14 -Wall -Wshadow'
 
-" goyo settings
-let g:goyo_width = 120
-function! s:goyo_enter()
-    silent !tmux set status off
-endfunction
-
-function! s:goyo_leave()
-    silent !tmux set status on
-endfunction
-
-autocmd! User GoyoEnter nested call <SID>goyo_enter()
-autocmd! User GoyoLeave nested call <SID>goyo_leave()
-noremap <F5> <C-O>:Goyo<CR>
-
 let g:vimwiki_table_mappings = 0
 let g:buftabline_indicators = 1
 highlight BufTabLineFill ctermbg=8
 highlight BufTabLineHidden ctermbg=8
 highlight BufTabLineCurrent ctermbg=None ctermfg=3
 highlight BufTabLineActive ctermbg=8 ctermfg=4
+
+" vim-indent-guide
+let g:indent_guides_enable_on_vim_startup = 1
+let g:indent_guides_guide_size = 1
+let g:indent_guides_start_level = 2
+
+autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd  ctermbg=0
+autocmd VimEnter,Colorscheme * :hi IndentGuidesEven ctermbg=0
 
 " ==================== CUSTOM SETTINGS ======================
 
