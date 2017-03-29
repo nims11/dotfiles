@@ -35,6 +35,9 @@
 *.color7:       #707880
 *.color15:      #c5c8c6
 
+! Font
+URxvt.font: xft:Inconsolata for Powerline:size=10
+
 
 *.opacity:      #FF
 lbar.location:  waterloo

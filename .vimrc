@@ -20,6 +20,7 @@ Plug 'sheerun/vim-polyglot'
 Plug 'vimwiki/vimwiki'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'ctrlpvim/ctrlp.vim'
+Plug 'metakirby5/codi.vim'
 
 " deoplete external sources
 Plug 'zchee/deoplete-jedi'
