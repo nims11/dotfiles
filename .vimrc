@@ -14,20 +14,17 @@ Plug 'SirVer/ultisnips'
 Plug 'sjl/gundo.vim'
 Plug 'nathanaelkane/vim-indent-guides'
 Plug 'w0rp/ale'
-" Plug 'hynek/vim-python-pep8-indent'
 Plug 'airblade/vim-gitgutter'
 Plug 'sheerun/vim-polyglot'
 Plug 'vimwiki/vimwiki'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'ctrlpvim/ctrlp.vim'
-Plug 'metakirby5/codi.vim'
 
 " deoplete external sources
 Plug 'zchee/deoplete-jedi'
 Plug 'Rip-Rip/clang_complete'
 
 " themes
-Plug 'flazz/vim-colorschemes'
 call plug#end()
 
 filetype plugin indent on     " auto indent
@@ -125,9 +122,11 @@ hi CursorLine ctermbg=0
 
 au FileType tex setl textwidth=80
 au FileType tex setl conceallevel=0
+au FileType vimwiki setl textwidth=80
 
 " Set spell checks
 autocmd FileType tex setlocal spell
+autocmd FileType vimwiki setlocal spell
 
 " ==================== PLUGIN SETTINGS AND MAPPINGS ======================
 
