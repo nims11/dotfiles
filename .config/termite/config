@@ -33,6 +33,7 @@ color15 =       #c5c8c6
 
 
 [options]
+font = Noto Color Emoji
 font = Inconsolata for Powerline
 size_hints = false
 
