@@ -22,6 +22,6 @@ if [[ $1 == "apply" ]]; then
     echo "lbar.fontsize: $FONT_SIZE" | xrdb -merge
     xrdb -edit ~/.Xresources
     kill $(ps ax | grep python2 | grep lbar.py | awk '{print $1}')
-    python2 ~/.config/panel/lbar.py &>/dev/null &
+    python2 ~/.config/panel/lbar.py >/tmp/bar.out 2>/tmp/bar.log &
     disown
 fi

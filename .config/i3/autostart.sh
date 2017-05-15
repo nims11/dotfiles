@@ -4,7 +4,7 @@
 compton -b --config ~/.config/compton.conf
 artha &
 termite &
-~/.config/start-internet.sh &
+# ~/.config/start-internet.sh &
 /usr/lib/notification-daemon-1.0/notification-daemon start &
 mpd &
 udiskie &
