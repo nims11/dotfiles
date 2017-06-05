@@ -111,12 +111,12 @@ set statusline+=%=
 set statusline+=[L]\ %3l/%L\ \ [C]\ %2c\ 
 
 " Theming
-hi Statusline ctermbg=3 ctermfg=8
-hi StatuslineNC ctermbg=7 ctermfg=0
-hi CursorLineNr ctermfg=3 ctermbg=8
-hi LineNr ctermfg=7 ctermbg=8
+hi Statusline ctermbg=10 ctermfg=0 cterm=reverse
+hi StatuslineNC ctermbg=7 ctermfg=0 cterm=reverse
+hi CursorLineNr ctermfg=10 ctermbg=8
+hi LineNr ctermfg=7 ctermbg=0
 hi Normal ctermfg=15 ctermbg=None
-hi CursorLine ctermbg=0
+hi CursorLine ctermbg=8
 
 " Conceal is turned on only in normal mode
 
@@ -166,7 +166,7 @@ let g:vimwiki_table_mappings = 0
 let g:buftabline_indicators = 1
 highlight BufTabLineFill ctermbg=8
 highlight BufTabLineHidden ctermbg=8
-highlight BufTabLineCurrent ctermbg=None ctermfg=3
+highlight BufTabLineCurrent ctermbg=None ctermfg=10
 highlight BufTabLineActive ctermbg=8 ctermfg=4
 
 " vim-indent-guide
