@@ -13,6 +13,9 @@ from threading import Thread
 import psutil
 import abc
 
+reload(sys)
+sys.setdefaultencoding('utf8')
+
 CUR_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def read_config():
@@ -50,7 +53,7 @@ WEATHER_URL = 'http://rss.accuweather.com/rss/liveweather_rss.asp?locCode=%s&met
     % WEATHER_LOCATION
 
 # Window Widget
-ACTIVE_WIN_MAX_LEN = 60
+ACTIVE_WIN_MAX_LEN = 80
 
 # Decorators
 def schedule(time_in_seconds=None):
@@ -208,7 +211,7 @@ class Main(object):
 #     def update(self):
 #         return
 
-COMMAND = 'lemonbar -B%s -F%s -a 30 -b -g x%s -f "Ubuntu Mono-%s" -f "FontAwesome-%s"' \
+COMMAND = 'lemonbar -B%s -F%s -a 30 -b -g x%s -f "Ubuntu Mono-%s" -f "FontAwesome-%s" -f "Source Han Sans JP-8"' \
     % (BG, FG, BARHEIGHT, FONT1SIZE, FONT2SIZE)
 
 main = Main(

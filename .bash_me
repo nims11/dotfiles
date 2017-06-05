@@ -68,3 +68,5 @@ function previewtex(){
         inotifywait -e close_write "$DIR"
     done
 }
+
+alias uwvpn="sudo openconnect cn-vpn.uwaterloo.ca"
