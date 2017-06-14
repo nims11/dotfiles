@@ -77,13 +77,9 @@ def schedule(time_in_seconds=None):
 
 # Brightness settings
 BRIGHT_FILE = ['/sys/class/backlight/acpi_video0', '/sys/class/backlight/intel_backlight']
-MAX_BRIGHTNESS = 10
 for file in BRIGHT_FILE:
     try:
-        with open(os.path.join(file, 'max_brightness')) as f:
-            MAX_BRIGHTNESS = int(f.read().strip())
         BRIGHTNESS_FILE_AVAILABLE = True
-        BRIGHT_FILE = file
         break
     except:
         BRIGHTNESS_FILE_AVAILABLE = False
@@ -231,16 +227,16 @@ def human_friendly(bytes):
         bytes /= 1024.0
     return '%4.1f %s/s' % (bytes, unit)
 
-def set_sys_stat():
+def set_sys_stat(interval=1):
     vmem = psutil.virtual_memory()
     io_data = psutil.disk_io_counters()
     io_bytes = io_data.write_bytes + io_data.read_bytes
-    io_rate = io_bytes - WIDGETS.get('io_bytes', 0)
+    io_rate = (io_bytes - WIDGETS.get('io_bytes', 0))/float(interval)
     WIDGETS['io_bytes'] = io_bytes
 
     nw_data = psutil.net_io_counters()
     nw_bytes = nw_data.bytes_sent + nw_data.bytes_recv
-    nw_rate = nw_bytes - WIDGETS.get('nw_bytes', 0)
+    nw_rate = (nw_bytes - WIDGETS.get('nw_bytes', 0))/float(interval)
     WIDGETS['nw_bytes'] = nw_bytes
     WIDGETS['sys_stat'] = '%%{A:system_status:}%s %2.0f%% %.2fGB  %s %s  %s %s%%{A}' % (
         ICONS['CPU'], psutil.cpu_percent(), vmem.used / float(2**30),
@@ -295,11 +291,9 @@ def set_ac_power():
 
 def set_brightness_info():
     global WIDGETS
-    brightness_val = 0
-    with open(os.path.join(BRIGHT_FILE, 'brightness')) as f:
-        brightness_val = int(f.read().strip())
-        STATE['brightness'] = brightness_val
-    WIDGETS['brightness_bar'] = progress(brightness_val, tot=MAX_BRIGHTNESS, name='[Brightness]')
+    brightness_val = int(float(subprocess.check_output(['light']).strip()))
+    STATE['brightness'] = brightness_val
+    WIDGETS['brightness_bar'] = progress(brightness_val, tot=100, name='[Brightness]')
 
 def set_os_info():
     global WIDGETS
@@ -347,15 +341,13 @@ def ultra_high_priority_jobs():
 @schedule(1)
 def high_priority_jobs():
     clock()
-    set_sys_stat()
     music()
     main.redraw()
 
 @schedule(2)
 def medium_priority_jobs():
+    set_sys_stat(2)
     set_volume_info()
-    if BRIGHTNESS_FILE_AVAILABLE:
-        set_brightness_info()
     if AC_POWER_FILE != None:
         set_ac_power()
 
@@ -409,15 +401,11 @@ def volume_up():
 def volume_down():
     subprocess.call('amixer -D pulse sset Master 3%-', shell=True)
 
-def set_brightness(val):
-    val = max(1, min(MAX_BRIGHTNESS, val))
-    brightness_file = os.path.join(BRIGHT_FILE, 'brightness')
-    subprocess.call('sudo adj_brightness "%s" %d' % (brightness_file, val), shell=True)
-
 def brightness_up():
-    set_brightness(STATE['brightness']+MAX_BRIGHTNESS//10)
+    subprocess.call('light -A 10', shell=True)
+
 def brightness_down():
-    set_brightness(STATE['brightness']-MAX_BRIGHTNESS//10)
+    subprocess.call('light -U 10', shell=True)
 
 def update_packages():
     subprocess.call("termite -e 'bash -c \"sudo pacman -Syu; echo Press any key to continue... && read -n 1\"'", shell=True)
@@ -431,6 +419,7 @@ def perform_action():
         if action == 'calendar':
             subprocess.Popen('gsimplecal')
         elif action == 'volume_show':
+            set_volume_info()
             activate_temp_info('volume_bar')
         elif action == 'volume_up':
             volume_up()
@@ -445,6 +434,7 @@ def perform_action():
         elif action == 'volume_more':
             subprocess.Popen('pavucontrol')
         elif action == 'brightness_show':
+            set_brightness_info()
             activate_temp_info('brightness_bar')
         elif action == 'brightness_up':
             brightness_up()
