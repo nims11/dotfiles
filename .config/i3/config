@@ -9,7 +9,7 @@ font pango:Overpass for Powerline 10
 floating_modifier $mod
 
 # start a terminal
-bindsym $mod+Return exec termite
+bindsym $mod+Return exec urxvt
 
 # kill focused window
 bindsym $alt+F4 kill
@@ -135,6 +135,13 @@ bindsym Control+$mod+l exec "i3lock -i /tmp/cur_wallpaper.png"
 bindsym XF86AudioRaiseVolume exec "pactl set-sink-volume 0 +5%"
 bindsym XF86AudioLowerVolume exec "pactl set-sink-volume 0 -5%"
 bindsym XF86AudioMute exec "pactl set-sink-mute 0 toggle"
+
+# Brightness control
+bindsym XF86MonBrightnessUp exec "light -A 10"
+bindsym XF86MonBrightnessDown exec "light -U 10"
+
+# Misc function buttons
+bindsym XF86Display exec "arandr"
 
 exec ~/.config/i3/autostart.sh
 
