@@ -69,4 +69,8 @@ function previewtex(){
     done
 }
 
+function venv(){
+    . "$1"/bin/activate
+}
+
 alias uwvpn="sudo openconnect cn-vpn.uwaterloo.ca"
