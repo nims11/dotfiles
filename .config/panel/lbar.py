@@ -12,6 +12,8 @@ from collections import defaultdict
 from threading import Thread
 import psutil
 import abc
+import Xlib
+import Xlib.display
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -140,7 +142,7 @@ POWER_COMMANDS = {
 
 POWER_OPTIONS_ORDER = ['Shutdown', 'Reboot', 'Suspend', 'Hibernate', 'Lock Screen']
 
-WIDGETS['brightness'] = '%%{A4:brightness_up:}%%{A5:brightness_down:}%%{A0:brightness_show:}%s%%{A}%%{A}%%{A}' % ICONS['brightness_high']
+WIDGETS['brightness'] = '%%{A:redshift_toggle:}%%{A4:brightness_up:}%%{A5:brightness_down:}%%{A0:brightness_show:}%s%%{A}%%{A}%%{A}%%{A}' % ICONS['brightness_high']
 WIDGETS['os_plain'] = '%%{A:update:}%%{A0:os_show:}%s%%{A}%%{A}' % ICONS['os']
 WIDGETS['weather'] = '%%{A:weather_open:}%%{A0:weather_show:}%s%%{A}%%{A}' % ICONS['weather']
 WIDGETS['power'] = '%%{A0:power_show:}%%{A3:power_next:}%%{A:power_select:}%s%%{A}%%{A}%%{A}' % (ICONS['power'])
@@ -266,12 +268,14 @@ def get_music_status():
     status = 0 if status == '[playing]' else 1
     return status, cur_playing
 
-def music():
-    status, cur_playing = get_music_status()
-    WIDGETS['music'] = '%%{A0:music_show:}%%{A:music_open:}  %s  %%{A}%%{A:music_prev:} %s %%{A} %%{A:music_toggle:} %s %%{A} %%{A:music_next:} %s %%{A} %%{A}' % (ICONS['music'], ICONS['prev'], ICONS['play'] if status != 0 else ICONS['pause'], ICONS['next'])
-    if cur_playing != WIDGETS['cur_playing']:
-        WIDGETS['cur_playing'] = cur_playing
-        activate_temp_info('cur_playing')
+def mpc_loop():
+    while True:
+        status, cur_playing = get_music_status()
+        WIDGETS['music'] = '%%{A0:music_show:}%%{A:music_open:}  %s  %%{A}%%{A:music_prev:} %s %%{A} %%{A:music_toggle:} %s %%{A} %%{A:music_next:} %s %%{A} %%{A}' % (ICONS['music'], ICONS['prev'], ICONS['play'] if status != 0 else ICONS['pause'], ICONS['next'])
+        if cur_playing != WIDGETS['cur_playing']:
+            WIDGETS['cur_playing'] = cur_playing
+            activate_temp_info('cur_playing')
+        subprocess.check_output('mpc idle player', shell=True)
 
 def set_volume_info():
     global WIDGETS
@@ -324,25 +328,71 @@ def set_bat_cap():
         elif cap >= 90:
             WIDGETS['battery-icon'] = ICONS['battery-4']
 
-def wname():
+def wname_loop():
+    """
+    https://stackoverflow.com/questions/4112334/capture-change-in-active-window-for-linux
+    """
     global WIDGETS
-    active_window = subprocess.check_output('xdotool getwindowfocus getwindowname', shell=True).strip()
-    if len(active_window) > ACTIVE_WIN_MAX_LEN:
-        active_window = active_window[:ACTIVE_WIN_MAX_LEN] + '...'
-    prev = WIDGETS['wname']
-    WIDGETS['wname'] = '%%{A:window_switcher:}%s%%{A}' % (active_window)
-    if prev != WIDGETS['wname']:
-        main.redraw()
+    disp = Xlib.display.Display()
+    root = disp.screen().root
+    NET_ACTIVE_WINDOW = disp.intern_atom('_NET_ACTIVE_WINDOW')
+    NET_WM_NAME = disp.intern_atom('_NET_WM_NAME')
+    last_seen = {'xid': None}
+    def get_active_window():
+        window_id = root.get_full_property(NET_ACTIVE_WINDOW,
+                                           Xlib.X.AnyPropertyType).value[0]
 
-@schedule(0.2)
-def ultra_high_priority_jobs():
-    wname()
+        focus_changed = (window_id != last_seen['xid'])
+        last_seen['xid'] = window_id
+
+        return window_id, focus_changed
+
+    def get_window_name(window_id):
+        try:
+            window_obj = disp.create_resource_object('window', window_id)
+            window_name = window_obj.get_full_property(NET_WM_NAME, 0).value
+        except Xlib.error.XError:
+            window_name = ''
+        except AttributeError:
+            window_name = ''
+
+        return window_name
+
+
+    root.change_attributes(event_mask=Xlib.X.PropertyChangeMask)
+    while True:
+        win, changed = get_active_window()
+        if changed:
+            active_window = get_window_name(win)
+            if len(active_window) > ACTIVE_WIN_MAX_LEN:
+                active_window = active_window[:ACTIVE_WIN_MAX_LEN] + '...'
+            prev = WIDGETS['wname']
+            WIDGETS['wname'] = '%%{A:window_switcher:}%s%%{A}' % (active_window)
+            if prev != WIDGETS['wname']:
+                main.redraw()
+
+        while True:
+            event = disp.next_event()
+            if (event.type == Xlib.X.PropertyNotify and
+                    event.atom == NET_ACTIVE_WINDOW):
+                break
+
 
 @schedule(1)
 def high_priority_jobs():
     clock()
-    music()
     main.redraw()
+
+def setup_monitors():
+    t = Thread(target=mpc_loop)
+    t.setDaemon(True)
+    t.start()
+
+    t = Thread(target=wname_loop)
+    t.setDaemon(True)
+    t.start()
+
+setup_monitors()
 
 @schedule(2)
 def medium_priority_jobs():
@@ -407,6 +457,9 @@ def brightness_up():
 def brightness_down():
     subprocess.call('light -U 10', shell=True)
 
+def redshift_toggle():
+    subprocess.call('~/scripts/toggle_redshift.sh', shell=True)
+
 def update_packages():
     subprocess.call("termite -e 'bash -c \"sudo pacman -Syu; echo Press any key to continue... && read -n 1\"'", shell=True)
     set_os_info()
@@ -446,6 +499,8 @@ def perform_action():
             set_brightness_info()
             activate_temp_info('brightness_bar')
             main.redraw()
+        elif action == 'redshift_toggle':
+            redshift_toggle()
         elif action == 'os_show':
             activate_temp_info('os_info')
         elif action == 'update':
@@ -482,13 +537,10 @@ def perform_action():
             activate_temp_info('cur_playing')
         elif action == 'music_toggle':
             music_toggle()
-            music()
         elif action == 'music_prev':
             music_prev()
-            music()
         elif action == 'music_next':
             music_next()
-            music()
         elif action == 'wallpaper_help':
             activate_temp_info('wallpaper_help')
         elif action == 'next_wallpaper':
