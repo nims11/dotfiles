@@ -454,7 +454,7 @@ def redshift_toggle():
     subprocess.call('~/scripts/toggle_redshift.sh', shell=True)
 
 def update_packages():
-    subprocess.call("termite -e 'bash -c \"sudo pacman -Syu; echo Press any key to continue... && read -n 1\"'", shell=True)
+    subprocess.call("urxvt -e bash -c \"sudo pacman -Syu; echo Press any key to continue... && read -n 1\"", shell=True)
     set_os_info()
 
 @schedule(None)
