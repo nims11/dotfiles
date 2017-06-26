@@ -77,14 +77,7 @@ def schedule(time_in_seconds=None):
         return func
     return _scheduled
 
-# Brightness settings
-BRIGHT_FILE = ['/sys/class/backlight/acpi_video0', '/sys/class/backlight/intel_backlight']
-for file in BRIGHT_FILE:
-    try:
-        BRIGHTNESS_FILE_AVAILABLE = True
-        break
-    except:
-        BRIGHTNESS_FILE_AVAILABLE = False
+BRIGHTNESS_FILE_AVAILABLE = os.path.exists('/usr/bin/light')
 
 # Power supply settings
 for dir in ['/sys/class/power_supply/ACAD', '/sys/class/power_supply/AC']:
@@ -185,7 +178,7 @@ class Main(object):
             WIDGETS['wname'].decode('utf8'),
             info_panel_item,
             WIDGETS['music'],
-            ' '.join(WIDGETS[x] for x in ('weather', 'os', 'wallpaper', 'brightness', 'volume', 'power')),
+            ' '.join(WIDGETS[x] for x in self.right_widgets),
             WIDGETS['clock']
         )
         self.BAR_PROC.stdin.write(panel_str.encode('utf-8'))
