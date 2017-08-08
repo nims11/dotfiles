@@ -113,7 +113,7 @@ ICONS = {
     'prev'              : u'\uf048',
     'music'             : u'%{T2}\uf001%{T-}',
     'power'             : u'%{T2}\uf011%{T-}',
-    'CPU'               : u'\uf0ae',
+    'CPU'               : u'\uf0e4',
     'wallpaper'         : u'\uf108',
     'sync'              : u'\uf021',
     'battery-0'         : u'\uf244',
