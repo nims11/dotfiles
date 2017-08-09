@@ -163,6 +163,7 @@ let g:ale_lint_on_save = 1
 let g:ale_cpp_gcc_options = '-std=c++14 -Wall -Wshadow'
 
 let g:vimwiki_table_mappings = 0
+
 let g:buftabline_indicators = 1
 highlight BufTabLineFill ctermbg=8
 highlight BufTabLineHidden ctermbg=8
@@ -186,11 +187,5 @@ noremap <leader>m mmHmt:%s/<C-V><cr>//ge<cr>'tzt'm
 :nnoremap <leader>ev :e $MYVIMRC<cr>
 :nnoremap <leader>sv :so $MYVIMRC<cr>
 
-" competitive programming stuffs
-" open input file
-nnoremap <leader>ci :execute "vsplit %:r.in"<CR><C-W>r<CR>
-" execute
-nnoremap <leader>cr :execute '!g++ --std=c++11 ' . shellescape(join([expand("%:r"),"cpp"],"."),1).
-    \ ' && ./a.out < '. shellescape(join([expand("%:r"), "in"], "."), 1)<CR>
 " copy code to clipboard
 nnoremap <leader>cc gg"+yG
