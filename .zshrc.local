@@ -24,8 +24,8 @@ bindkey "^Z" predict-off
 ## try to avoid the 'zsh: no matches found...'
 setopt nonomatch
 
-## don't warn me about bg processes when exiting
-setopt nocheckjobs
+setopt noautocd
+setopt interactivecomments
 
 ## compsys related snippets ##
 ## changed completer settings
@@ -39,7 +39,11 @@ export MANWIDTH=${MANWIDTH:-80}
 
 ## vi mode
 bindkey -v
-export KEYTIMEOUT=1
+export KEYTIMEOUT=0.4
+bindkey  "^[[7~"   beginning-of-line
+bindkey  "^[[8~"   end-of-line
+bindkey -M viins 'jk' vi-cmd-mode
 
+source /usr/share/doc/pkgfile/command-not-found.zsh
 source ~/.bash_me
 source ~/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
