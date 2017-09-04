@@ -141,8 +141,8 @@ WIDGETS['weather'] = '%%{A:weather_open:}%%{A0:weather_show:}%s%%{A}%%{A}' % ICO
 WIDGETS['power'] = '%%{A0:power_show:}%%{A3:power_next:}%%{A:power_select:}%s%%{A}%%{A}%%{A}' % (ICONS['power'])
 WIDGETS['power_help'] = '[Power Options] Right Click To Navigate, Left Click To Select'
 WIDGETS['cur_power_selection'] = ''
-WIDGETS['wallpaper'] = '%%{A0:wallpaper_help:}%%{A:next_wallpaper:}%%{A3:random_wallpaper:}%s%%{A}%%{A}%%{A}' % ICONS['wallpaper']
-WIDGETS['wallpaper_help'] = 'Next Wallpaper [left click] / Random Wallpaper [right click]'
+WIDGETS['wallpaper'] = '%%{A0:wallpaper_help:}%%{A:sel_wallpaper:}%%{A3:random_wallpaper:}%s%%{A}%%{A}%%{A}' % ICONS['wallpaper']
+WIDGETS['wallpaper_help'] = 'Select Wallpaper [left click] / Random Wallpaper [right click]'
 
 #### Helpers ####
 def progress(val, tot=100, bars=40, name=''):
@@ -536,8 +536,8 @@ def perform_action():
             music_next()
         elif action == 'wallpaper_help':
             activate_temp_info('wallpaper_help')
-        elif action == 'next_wallpaper':
-            subprocess.Popen('bash ~/wallpaper.sh next', shell=True)
+        elif action == 'sel_wallpaper':
+            subprocess.Popen('bash ~/wallpaper.sh select', shell=True)
         elif action == 'random_wallpaper':
             subprocess.Popen('bash ~/wallpaper.sh', shell=True)
 

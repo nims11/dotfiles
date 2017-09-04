@@ -149,6 +149,8 @@ exec ~/.config/i3/autostart.sh
 assign [class="Firefox"] 2
 assign [class="Chromium"] 2
 assign [class="Steam"] 3
+assign [class="discord"] 4
+assign [class="slack"] 4
 
 focus_follows_mouse no
 

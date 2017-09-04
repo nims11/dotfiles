@@ -7,7 +7,6 @@ endif
 call plug#begin('~/.vim/plugged')
 Plug 'ap/vim-buftabline'
 Plug 'tpope/vim-commentary'
-Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-surround'
 Plug 'Shougo/deoplete.nvim'
 Plug 'SirVer/ultisnips'
@@ -18,7 +17,8 @@ Plug 'airblade/vim-gitgutter'
 Plug 'sheerun/vim-polyglot'
 Plug 'vimwiki/vimwiki'
 Plug 'christoomey/vim-tmux-navigator'
-Plug 'ctrlpvim/ctrlp.vim'
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf.vim'
 
 " deoplete external sources
 Plug 'zchee/deoplete-jedi'
@@ -147,6 +147,9 @@ let g:vim_markdown_folding_disabled=1
 
 " gundo bindings
 nnoremap <C-z> :GundoToggle<CR>
+
+" fzf bindings
+nnoremap <C-o> :Files<CR>
 
 " use deoplete.
 let g:deoplete#enable_at_startup = 1

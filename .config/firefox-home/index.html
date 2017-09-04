@@ -94,23 +94,42 @@
             <form action="javascript: submit();">
                 <input id="search_field" type="text" name"search_term" placeholder="Search . . .">
             </form>
-            <table>
-                <tr>
-                    <td><a href="https://www.reddit.com/me/m/interests/">Reddit</a></td>
-                    <td><a href="https://www.github.com">Github</a></td>
-                </tr>
-                <tr>
-                    <td><a href="https://aur.archlinux.org">Gmail</a></td>
-                    <td><a href="https://www.feedly.com">Feedly</a></td>
-                </tr>
-                <tr>
-                    <td><a href="https://www.facebook.com">Facebook</a></td>
-                    <td><a href="https://www.youtube.com">YouTube</a></td>
-                </tr>
-                <tr>
-                    <td><a href="https://news.ycombinator.com">HackerNews</a></td>
-                </tr>
-            </div>
+            <table id="links">
+            </table>
         </div>
+        <script type="text/javascript">
+            var width = 3;
+            var urls = [
+                ["https://news.ycombinator.com","HackerNews"],
+                ["https://www.github.com","Github"],
+                ["https://aur.archlinux.org","Gmail"],
+                ["https://www.feedly.com","Feedly"],
+                ["https://www.facebook.com","Facebook"],
+                ["https://www.youtube.com","YouTube"],
+                ["https://www.reddit.com/r/anime/","r/anime"],
+                ["https://www.reddit.com/r/cricket/","r/cricket"],
+                ["https://www.reddit.com/r/dota2/","r/dota2"],
+                ["https://www.reddit.com/r/firefox/","r/firefox"],
+                ["https://www.reddit.com/r/india/","r/india"],
+                ["https://www.reddit.com/r/linux/","r/linux"],
+                ["https://www.reddit.com/r/linux_gaming/","r/linux_gaming"],
+                ["https://www.reddit.com/r/jrpg/","r/jrpg"],
+                ["https://www.reddit.com/r/unixporn/","r/unixporn"],
+                ["https://www.reddit.com/r/uwaterloo/","r/uwaterloo"],
+                ["https://www.reddit.com/r/vim/","r/vim"],
+            ]
+            var idx = 0;
+            var html = "";
+            while(idx < urls.length){
+                html += "<tr>"
+                for(var idx2 = idx; idx2 < idx + width && idx2 < urls.length; idx2++){
+                    html += "<td><a href=\"" + urls[idx2][0] + "\">";
+                    html += urls[idx2][1] + "</a></td>";
+                }
+                html += "</tr>"
+                idx += width;
+            }
+            document.getElementById("links").innerHTML = html;
+        </script>
     </body>
 </html>
