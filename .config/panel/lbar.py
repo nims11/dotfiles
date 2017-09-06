@@ -323,29 +323,47 @@ def set_bat_cap():
 
 def wname_loop():
     """
-    https://stackoverflow.com/questions/4112334/capture-change-in-active-window-for-linux
+    https://gist.github.com/ssokolow/e7c9aae63fb7973e4d64cff969a78ae8
     """
     global WIDGETS
     disp = Xlib.display.Display()
     root = disp.screen().root
+    root.change_attributes(event_mask=Xlib.X.PropertyChangeMask)
     NET_ACTIVE_WINDOW = disp.intern_atom('_NET_ACTIVE_WINDOW')
     NET_WM_NAME = disp.intern_atom('_NET_WM_NAME')
+    WM_NAME = disp.intern_atom('WM_NAME')
     last_seen = {'xid': None}
+    
+    def get_window_obj(win_id):
+        try:
+            return disp.create_resource_object('window', win_id)
+        except Xlib.error.XError:
+            return None
+
+
     def get_active_window():
         window_id = root.get_full_property(NET_ACTIVE_WINDOW,
                                            Xlib.X.AnyPropertyType).value[0]
 
         focus_changed = (window_id != last_seen['xid'])
-        last_seen['xid'] = window_id
+
+        if focus_changed:
+            if last_seen['xid'] != None:
+                old_win = get_window_obj(last_seen['xid'])
+                if old_win != None:
+                    old_win.change_attributes(event_mask=Xlib.X.NoEventMask)
+            last_seen['xid'] = window_id
+            new_win = get_window_obj(window_id)
+            if new_win != None:
+                new_win.change_attributes(event_mask=Xlib.X.PropertyChangeMask)
 
         return window_id, focus_changed
 
+
     def get_window_name(window_id):
         try:
-            window_obj = disp.create_resource_object('window', window_id)
+            window_obj = get_window_obj(window_id)
             window_name = window_obj.get_full_property(NET_WM_NAME, 0).value
-        except Xlib.error.XError:
-            window_name = ''
         except AttributeError:
             window_name = ''
 
@@ -355,19 +373,18 @@ def wname_loop():
     root.change_attributes(event_mask=Xlib.X.PropertyChangeMask)
     while True:
         win, changed = get_active_window()
-        if changed:
-            active_window = get_window_name(win)
-            if len(active_window) > ACTIVE_WIN_MAX_LEN:
-                active_window = active_window[:ACTIVE_WIN_MAX_LEN] + '...'
-            prev = WIDGETS['wname']
-            WIDGETS['wname'] = '%%{A:window_switcher:}%s%%{A}' % (active_window)
-            if prev != WIDGETS['wname']:
-                main.redraw()
+        active_window = get_window_name(win)
+        if len(active_window) > ACTIVE_WIN_MAX_LEN:
+            active_window = active_window[:ACTIVE_WIN_MAX_LEN] + '...'
+        prev = WIDGETS['wname']
+        WIDGETS['wname'] = '%%{A:window_switcher:}%s%%{A}' % (active_window)
+        if prev != WIDGETS['wname']:
+            main.redraw()
 
         while True:
             event = disp.next_event()
             if (event.type == Xlib.X.PropertyNotify and
-                    event.atom == NET_ACTIVE_WINDOW):
+                    event.atom in (NET_ACTIVE_WINDOW, NET_WM_NAME, WM_NAME)):
                 break
 
 
