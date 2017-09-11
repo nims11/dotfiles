@@ -372,8 +372,11 @@ def wname_loop():
 
     root.change_attributes(event_mask=Xlib.X.PropertyChangeMask)
     while True:
-        win, changed = get_active_window()
-        active_window = get_window_name(win)
+        try:
+            win, changed = get_active_window()
+            active_window = get_window_name(win)
+        except Xlib.error.BadWindow:
+            active_window = ''
         if len(active_window) > ACTIVE_WIN_MAX_LEN:
             active_window = active_window[:ACTIVE_WIN_MAX_LEN] + '...'
         prev = WIDGETS['wname']
