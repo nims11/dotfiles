@@ -146,7 +146,7 @@ vmap <space> gc
 let g:vim_markdown_folding_disabled=1
 
 " gundo bindings
-nnoremap <C-z> :GundoToggle<CR>
+nnoremap <leader>u :GundoToggle<CR>
 
 " fzf bindings
 nnoremap <C-o> :Files<CR>
@@ -163,7 +163,8 @@ let g:UltiSnipsSnippetDirectories=[$HOME.'/.vim/ultisnips']
 " ale settings
 let g:ale_lint_on_text_changed = 0
 let g:ale_lint_on_save = 1
-let g:ale_cpp_gcc_options = '-std=c++14 -Wall -Wshadow'
+let g:ale_cpp_clang_options = '-std=c++14 -Wall -Wshadow'
+let g:ale_linters = {'cpp': ['clang']}
 
 let g:vimwiki_table_mappings = 0
 
