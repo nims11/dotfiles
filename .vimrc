@@ -19,6 +19,8 @@ Plug 'vimwiki/vimwiki'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
+Plug 'bfredl/nvim-ipy'
+Plug 'ludovicchabant/vim-gutentags'
 
 " deoplete external sources
 Plug 'zchee/deoplete-jedi'
@@ -34,7 +36,6 @@ set t_co=256                  " force 256 colors
 set wrap                      " enable word wrap
 set showmatch mat=5           " blink match parenthesis, blink match time
 set ruler cursorline
-set pastetoggle=<F2>          " shortcut for paste mode
 set so=12                     " avoid cursor getting to extreme bottom/top
 set tm=400                    " Time waited for special sequences
 set noerrorbells novisualbell
@@ -107,6 +108,7 @@ set synmaxcol=120
 set statusline=\ %M\ %y\ %r
 set statusline+=%=
 set statusline+=%f
+set statusline+=\ %{gutentags#statusline('[Generating...]')}
 set statusline+=%=
 set statusline+=[L]\ %3l/%L\ \ [C]\ %2c\ 
 
@@ -182,6 +184,9 @@ let g:indent_guides_start_level = 2
 autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd  ctermbg=0
 autocmd VimEnter,Colorscheme * :hi IndentGuidesEven ctermbg=0
 
+" gutentags
+let g:gutentags_exclude_project_root = ['/usr/local', $HOME]
+
 " ==================== CUSTOM SETTINGS ======================
 
 " remove stray ^M
@@ -192,4 +197,4 @@ noremap <leader>m mmHmt:%s/<C-V><cr>//ge<cr>'tzt'm
 :nnoremap <leader>sv :so $MYVIMRC<cr>
 
 " copy code to clipboard
-nnoremap <leader>cc gg"+yG
+nnoremap <leader>cc :%y+<CR>
