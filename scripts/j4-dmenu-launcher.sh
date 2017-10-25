@@ -5,8 +5,5 @@ HEIGHT=$(xrdb -query | egrep '^lbar.height\s*:\s*' ~/.Xresources | tr ':' ' ' | 
 FONTSIZE=$(xrdb -query | egrep '^lbar.fontsize\s*:\s*' ~/.Xresources | tr ':' ' ' | awk '{print $2}' | tail -1)
 echo $HEIGHT
 echo $FONTSIZE
-j4-dmenu-desktop \
-    --dmenu="(cat; echo suspend$'\n'reboot$'\n'poweroff) |\
-    "'dmenu -b -q -i -h "'$HEIGHT'" -p ">" -fn "Ubuntu Mono-"'$FONTSIZE'""\
-    -nb "'$BG'" -nf "'$FG'" -sb "'$FG'" -sf "'$BG'"'\
-    --term="termite"
+dmenu_run -b -q -i -h $HEIGHT -p ">" -fn "Ubuntu Mono - $FONTSIZE" \
+    -nb $BG -nf $FG -sb $FG -sf $BG
