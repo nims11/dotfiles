@@ -175,7 +175,7 @@ class Main(object):
             info_panel_item = WIDGETS.get(temp_info_item, '')
         panel_str = self.panel_str % (
             BG,
-            WIDGETS['wname'].decode('utf8'),
+            WIDGETS['wname'].decode('utf8', 'ignore'),
             info_panel_item,
             WIDGETS['music'],
             ' '.join(WIDGETS[x] for x in self.right_widgets),
