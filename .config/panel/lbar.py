@@ -31,6 +31,7 @@ def read_config():
         traceback.print_exc()
     return config
 
+
 CONFIG = read_config()
 OPACITY = CONFIG.get('*.opacity', '#EE')[1:]
 BG = '#'+OPACITY+CONFIG.get('*.background', '#141311')[1:]
@@ -41,9 +42,8 @@ FONT1SIZE = CONFIG.get('lbar.fontsize', '9')
 FONT2SIZE = int(FONT1SIZE) - 1
 BARHEIGHT = CONFIG.get('lbar.height', '25')
 
-
 # Weather settings
-WEATHER_LOCATION = CONFIG.get('lbar.location','waterloo')
+WEATHER_LOCATION = CONFIG.get('lbar.location', 'waterloo')
 WEATHER_URL = 'http://rss.accuweather.com/rss/liveweather_rss.asp?locCode=%s&metric=1'\
     % WEATHER_LOCATION
 
@@ -52,6 +52,9 @@ ACTIVE_WIN_MAX_LEN = 80
 
 # Decorators
 def schedule(time_in_seconds=None):
+    """
+    Spawns a thread and runs it every `time_in_seconds` seconds
+    """
     def _scheduled(func):
         def _run():
             while True:
@@ -62,11 +65,11 @@ def schedule(time_in_seconds=None):
                     traceback.print_exc(file=sys.stderr)
 
         if time_in_seconds is not None:
-            t = Thread(target=_run)
+            thread = Thread(target=_run)
         else:
-            t = Thread(target=func)
-        t.setDaemon(True)
-        t.start()
+            thread = Thread(target=func)
+        thread.setDaemon(True)
+        thread.start()
         return func
     return _scheduled
 
