@@ -1,8 +1,7 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 """
 Bar generator
 """
-from __future__ import print_function
 import sys
 import os
 import traceback
@@ -11,14 +10,8 @@ import time
 from collections import defaultdict
 from threading import Thread
 import psutil
-import abc
 import Xlib
 import Xlib.display
-
-reload(sys)
-sys.setdefaultencoding('utf8')
-
-CUR_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def read_config():
     """
@@ -130,7 +123,7 @@ POWER_COMMANDS = {
     'Reboot': 'systemctl reboot',
     'Suspend': 'systemctl suspend',
     'Hibernate': 'systemctl hibernate',
-    'Lock Screen': 'slimlock'
+    'Lock Screen': 'i3lock -i /tmp/cur_wallpaper.png'
 }
 
 POWER_OPTIONS_ORDER = ['Shutdown', 'Reboot', 'Suspend', 'Hibernate', 'Lock Screen']
@@ -175,7 +168,8 @@ class Main(object):
             info_panel_item = WIDGETS.get(temp_info_item, '')
         panel_str = self.panel_str % (
             BG,
-            WIDGETS['wname'].decode('utf8', 'ignore'),
+            WIDGETS['wname'],
+            # WIDGETS['wname'].decode('utf8', 'ignore'),
             info_panel_item,
             WIDGETS['music'],
             ' '.join(WIDGETS[x] for x in self.right_widgets),
@@ -183,24 +177,6 @@ class Main(object):
         )
         self.BAR_PROC.stdin.write(panel_str.encode('utf-8'))
         self.BAR_PROC.stdin.flush()
-
-# class Widget(object):
-#     __metaclass__ = abc.ABCMeta
-
-#     def __init__(self, update_time=None):
-#         try:
-#             self.init()
-#             schedule(update_time)(self.update)
-#         except:
-#             traceback.print_exc()
-
-#     @abc.abstractmethod
-#     def init(self):
-#         return
-
-#     @abc.abstractmethod
-#     def update(self):
-#         return
 
 COMMAND = 'lemonbar -B%s -F%s -a 30 -b -g x%s -f "Ubuntu Mono-%s" -f "FontAwesome-%s" -f "Source Han Sans JP-8"' \
     % (BG, FG, BARHEIGHT, FONT1SIZE, FONT2SIZE)
@@ -212,7 +188,7 @@ main = Main(
 
 def clock():
     global WIDGETS
-    WIDGETS['clock'] = b'%%{A0:date_show:}%%{A:calendar:}%s%%{A}%%{A}' % time.strftime('%H:%M:%S').encode()
+    WIDGETS['clock'] = '%%{A0:date_show:}%%{A:calendar:}%s%%{A}%%{A}' % time.strftime('%H:%M:%S')
 
 def human_friendly(bytes):
     units = 'BKMG'
@@ -303,7 +279,13 @@ def set_os_info():
         WIDGETS['os'] = WIDGETS['os_plain']
 
 def set_weather_info():
-    WIDGETS['weather_bar'] = '[Weather] ' + subprocess.check_output("curl --connect-timeout 15 -s '%s' | grep '<title>Currently' | sed -E 's/<.?title>//g' | sed 's/Currently://' | xargs" % WEATHER_URL, shell=True).strip()
+    cmd = "curl --connect-timeout 15 -s '%s' "\
+        + "| grep '<title>Currently' "\
+        + "| sed -E 's/<.?title>//g' "\
+        + "| sed 's/Currently://' "\
+        + "| xargs"
+    WIDGETS['weather_bar'] = '[Weather] ' \
+            + subprocess.check_output(cmd % WEATHER_URL, shell=True).decode().strip()
 
 def set_bat_cap():
     global WIDGETS
@@ -367,7 +349,7 @@ def wname_loop():
         except AttributeError:
             window_name = ''
 
-        return window_name
+        return window_name.decode()
 
 
     root.change_attributes(event_mask=Xlib.X.PropertyChangeMask)
@@ -481,7 +463,7 @@ def update_packages():
 def perform_action():
     global temp_info_mode
     while True:
-        action = main.BAR_PROC.stdout.readline().strip()
+        action = main.BAR_PROC.stdout.readline().decode().strip()
         if action == 'calendar':
             subprocess.Popen('gsimplecal')
         elif action == 'volume_show':
@@ -564,7 +546,7 @@ def perform_action():
 
 try:
     while True:
-        time.sleep(0.1)
+        time.sleep(0.2)
 except KeyboardInterrupt:
     print("Keyboard Interrupt Detected. Exiting...")
     sys.exit(0)
