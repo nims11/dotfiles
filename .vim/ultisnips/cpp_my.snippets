@@ -60,6 +60,8 @@ void gen_fact(){
     }
 }
 long long C(int n, int k){
+    if(n < k)
+        return 0;
     return MUL(fact[n], MUL(inv[k], inv[n-k]));
 }
 endsnippet
