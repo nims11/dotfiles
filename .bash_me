@@ -74,3 +74,5 @@ function venv(){
 }
 
 alias uwvpn="sudo openconnect cn-vpn.uwaterloo.ca"
+alias youtube-dl-aria="youtube-dl --external-downloader aria2c --external-downloader-args \"--file-allocation=falloc --min-split-size=1M --split=16 --max-connection-per-server=16\""
+alias steam-wine='WINEDEBUG=-all wine ~/.wine/drive_c/Program\ Files\ \(x86\)/Steam/Steam.exe -no-cef-sandbox >/dev/null 2>&1 &'

@@ -109,7 +109,6 @@ ICONS = {
     'prev'              : u'\uf048',
     'music'             : u'%{T2}\uf001%{T-}',
     'power'             : u'%{T2}\uf011%{T-}',
-    'CPU'               : u'\uf0e4',
     'wallpaper'         : u'\uf108',
     'sync'              : u'\uf021',
     'battery-0'         : u'\uf244',
@@ -202,6 +201,7 @@ def human_friendly(bytes):
     return '%4.1f %s/s' % (bytes, unit)
 
 def set_sys_stat(interval=1):
+    WIDGETS['sys_stat'] = ''
     vmem = psutil.virtual_memory()
     io_data = psutil.disk_io_counters()
     io_bytes = io_data.write_bytes + io_data.read_bytes
@@ -212,8 +212,8 @@ def set_sys_stat(interval=1):
     nw_bytes = nw_data.bytes_sent + nw_data.bytes_recv
     nw_rate = (nw_bytes - WIDGETS.get('nw_bytes', 0))/float(interval)
     WIDGETS['nw_bytes'] = nw_bytes
-    WIDGETS['sys_stat'] = '%%{A:system_status:}%s %2.0f%% %.2fGB  %s %s  %s %s%%{A}' % (
-        ICONS['CPU'], psutil.cpu_percent(), vmem.used / float(2**30),
+    WIDGETS['sys_stat'] = '%%{A:system_status:}%2.0f%% %.2fGB  %s %s  %s %s%%{A}' % (
+        psutil.cpu_percent(), vmem.used / float(2**30),
         ICONS['disk'], human_friendly(io_rate),
         ICONS['net'], human_friendly(nw_rate)
     )
