@@ -1,5 +1,5 @@
-- `pacman -S tmux git neovim python2-neovim python-neovim pkg-config make fakeroot powerline-fonts clang gsimplecal alsa-utils pavucontrol python2-psutil psutils evince ttf-ubuntu-font-family ipython gcc jupyter jupyter-notebook python-pylint i3lock compton artha mpd ncmpcpp xdotool mpc imagemagick feh pkgfile`
-- `pacaur -S ttf-font-awesome dmenu2`
+- `pacman -S tmux git neovim python-neovim pkg-config make fakeroot powerline-fonts clang gsimplecal alsa-utils python2-psutil psutils gcc jupyter python-pylint i3lock compton mpd ncmpcpp xdotool mpc imagemagick feh pkgfile`
+- `pacaur -S ttf-font-awesome-4 dmenu2 i3lock-color`
 - `pkgfile --update`
 - `git submodule update`
 - customize `~/.config/start-internet.sh`

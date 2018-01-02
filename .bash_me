@@ -61,7 +61,7 @@ function previewtex(){
         STATUS=$?
         if [[ $EVINCE_OPEN == 0 ]]; then
             if [[ $STATUS == 0 ]]; then
-                evince "${1%%tex}pdf" &
+                xdg-open "${1%%tex}pdf" &
                 EVINCE_OPEN=1
             fi
         fi
@@ -74,3 +74,5 @@ function venv(){
 }
 
 alias uwvpn="sudo openconnect cn-vpn.uwaterloo.ca"
+alias cpcmd='tmux setb "$(fc -ln -1 -1)"'
+PATH=$HOME/.local/bin:$PATH
