@@ -273,7 +273,7 @@ def set_brightness_info():
 
 def set_os_info():
     global WIDGETS
-    os_version = subprocess.check_output('uname -sr', shell=True).strip()
+    os_version = subprocess.check_output('uname -sr', shell=True).strip().decode()
     update_count = int(subprocess.check_output('pacman -Qu | wc -l', shell=True).strip())
     WIDGETS['os_info'] = '%s - %s Updates available' % (os_version, update_count)
     if update_count > 0:
