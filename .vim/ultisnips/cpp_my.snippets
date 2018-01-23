@@ -88,10 +88,15 @@ snippet segment_tree "Segment Tree"
 #define ARR_SIZE ${1:100010}
 struct node{
     //Node variables
+    bool lazy = false;
+    int carry = 0;
 };
 node TREE[ARR_SIZE<<2];
-int n,arr[ARR_SIZE];
+int arr[ARR_SIZE];
 using namespace std;
+
+void lazy_prop(int, int, int);
+
 void build_segment_tree(int NODE,int a,int b){
     if(a==b){
 	// Single node condition
@@ -104,8 +109,10 @@ void build_segment_tree(int NODE,int a,int b){
 
     // Merge Logic for left and right
 }
+
 node query_segment_tree(int NODE,int a,int b,int x,int y){
     if(x<=a && y>=b)return TREE[NODE];
+    lazy_prop(NODE, a, b);
     int mid=(a+b)/2;
     int left=2*NODE,right=2*NODE+1;
     if(y<=mid)return query_segment_tree(left,a,mid,x,y);
@@ -118,17 +125,34 @@ node query_segment_tree(int NODE,int a,int b,int x,int y){
     // Merge left_query and right_query into ans
     return ans;
 }
+
 void update_segment_tree(int NODE,int a,int b,int x){
     if(a==b){
 	//Single node logic
+	TREE[NODE].carry = x;
+	TREE[NODE].lazy = true;
 	return;
     }
+    lazy_prop(NODE, a, b);
     int mid=(a+b)/2;
     int left=2*NODE,right=2*NODE+1;
     if(x<=mid) update_segment_tree(left,a,mid,x);
     else update_segment_tree(right,mid+1,b,x);
 
     //Merge left and right nodes
+}
+
+void lazy_prop(int NODE, int a, int b){
+    if(TREE[NODE].lazy){
+	int left = NODE<<1;
+	int right = left+1;
+	int mid = (a+b)/2;
+	if(a < b){
+	    update_segment_tree(left, a, mid, TREE[NODE].carry);
+	    update_segment_tree(right, mid+1, b, TREE[NODE].carry);
+	}
+	TREE[NODE].lazy = false;
+    }
 }
 endsnippet
 
