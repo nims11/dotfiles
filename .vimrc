@@ -18,14 +18,13 @@ Plug 'sheerun/vim-polyglot'
 Plug 'vimwiki/vimwiki'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
-Plug 'bfredl/nvim-ipy'
 Plug 'ludovicchabant/vim-gutentags'
+Plug 'lervag/vimtex'
 
 " deoplete external sources
 Plug 'zchee/deoplete-jedi'
 Plug 'Rip-Rip/clang_complete'
 
-" themes
 call plug#end()
 
 filetype plugin indent on     " auto indent
