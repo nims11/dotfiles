@@ -188,6 +188,13 @@ main = Main(
     command=COMMAND
 )
 
+def activate_temp_info(name):
+    global temp_info_active, temp_info_mode, temp_info_item
+    temp_info_active = True
+    temp_info_mode = True
+    temp_info_item = name
+    main.redraw()
+
 def clock():
     global WIDGETS
     WIDGETS['clock'] = '%%{A0:date_show:}%%{A:calendar:}%s%%{A}%%{A}' % time.strftime('%H:%M:%S')
@@ -230,7 +237,7 @@ def get_music_status():
     """
     try:
         cmd = "mpc | awk 'NR==1{print $0} NR==2{print $1}'"
-        out = subprocess.check_output(cmd, shell=True).split('\n')
+        out = subprocess.check_output(cmd, shell=True).decode().split('\n')
         if len(out) < 3:
             raise Exception("stopped")
         cur_playing, status = out[:2]
@@ -419,13 +426,6 @@ def music_next():
 def music_prev():
     subprocess.Popen('mpc prev >/dev/null', shell=True)
 
-def activate_temp_info(name):
-    global temp_info_active, temp_info_mode, temp_info_item
-    temp_info_active = True
-    temp_info_mode = True
-    temp_info_item = name
-    main.redraw()
-
 @schedule(None)
 def temp_info_counter():
     global temp_info_active, temp_info_mode
@@ -459,7 +459,7 @@ def redshift_toggle():
     subprocess.call('~/scripts/toggle_redshift.sh', shell=True)
 
 def update_packages():
-    subprocess.call("urxvt -e bash -c \"sudo pacman -Syu; echo Press any key to continue... && read -n 1\"", shell=True)
+    subprocess.call("st -e bash -c \"sudo pacman -Syu; echo Press any key to continue... && read -n 1\"", shell=True)
     set_os_info()
 
 @schedule(None)

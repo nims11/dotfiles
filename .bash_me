@@ -25,7 +25,6 @@ alias mkcd="mkdir $1 && cd $1"
 alias c='xclip -selection clipboard'
 
 
-export TERM=screen-256color
 export VISUAL=nvim
 export EDITOR=$VISUAL
 
