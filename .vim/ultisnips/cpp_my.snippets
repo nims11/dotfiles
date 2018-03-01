@@ -3,9 +3,6 @@ std::pair<${1:int},${2:int}> pair;
 endsnippet
 
 snippet factorial "factorial with inverse"
-const int mod = 1000000007;
-#define MUL(a, b) ((a*1LL*b)%mod)
-#define ADD(a, b) ((a+0LL+b)%mod)
 int fact[${1:1000010}], inv[$1];
 void gen_fact(){
     fact[0] = 1;
@@ -19,8 +16,9 @@ endsnippet
 
 snippet power "logarithmic power"
 const int mod = 1000000007;
-#define MUL(a, b) ((a*1LL*b)%mod)
-#define ADD(a, b) ((a+0LL+b)%mod)
+template <typename T>
+inline T MUL(T a, T b) { return (a*1LL*b)%mod; }
+inline T ADD(T a, T b) { return (a+0LL+b)%mod; }
 int POW(long long r, long long n){
     int ans = 1;
     while(n>0){
@@ -34,8 +32,9 @@ endsnippet
 
 snippet combination "n <= 2000"
 const int mod = 1000000007;
-#define MUL(a, b) ((a*1LL*b)%mod)
-#define ADD(a, b) ((a+0LL+b)%mod)
+template <typename T>
+inline T MUL(T a, T b) { return (a*1LL*b)%mod; }
+inline T ADD(T a, T b) { return (a+0LL+b)%mod; }
 int C[${1:1001}][$1];
 void gen_C(){
     for(int i = 0;i<$1;i++)
@@ -48,8 +47,9 @@ endsnippet
 
 snippet combination "n <= 1000000"
 const int mod = 1000000007;
-#define MUL(a, b) ((a*1LL*b)%mod)
-#define ADD(a, b) ((a+0LL+b)%mod)
+template <typename T>
+inline T MUL(T a, T b) { return (a*1LL*b)%mod; }
+inline T ADD(T a, T b) { return (a+0LL+b)%mod; }
 int fact[${1:1000010}], inv[$1];
 void gen_fact(){
     fact[0] = 1;
@@ -184,7 +184,11 @@ void genPrimes(){
 endsnippet
 
 snippet start "Start Template"
+#pragma GCC optimize("Ofast")
+#pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,tune=native")
+
 #include <bits/stdc++.h>
+
 #define in_T int t;for(scanf("%d",&t);t--;)
 #define in_I(a) scanf("%d",&a)
 #define in_F(a) scanf("%lf",&a)
@@ -194,6 +198,12 @@ snippet start "Start Template"
 #define BE(a) a.begin(), a.end()
 
 const int INF = INT_MAX;
+
+const int mod = 1000000007;
+template <typename T>
+inline T MUL(T a, T b) { return (a*1LL*b)%mod; }
+inline T ADD(T a, T b) { return (a+0LL+b)%mod; }
+
 using namespace std;
 
 int main(){
@@ -408,18 +418,13 @@ int LCA::lca(int u, int v){
 }
 endsnippet
 
-snippet modulo "modulo operations"
-	const int mod = 1000000007;
-#define MUL(a, b) ((a*1LL*b)%mod)
-#define ADD(a, b) ((a+0LL+b)%mod)
-endsnippet
-
 snippet string_hash "String Hashing"
 long long mod = 1000000009;
 long long hashval[100010];
 long long pow_10009[100010];
-#define MUL(a, b) ((a*1LL*b)%mod)
-#define ADD(a, b) ((a+b)%mod)
+template <typename T>
+inline T MUL(T a, T b) { return (a*1LL*b)%mod; }
+inline T ADD(T a, T b) { return (a+0LL+b)%mod; }
 void computeHash(char *str, int len){
     hashval[0] = 0;
     for(int i = 1;i<=len;i++){

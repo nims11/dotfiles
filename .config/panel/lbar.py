@@ -357,7 +357,7 @@ def wname_loop():
             window_obj = get_window_obj(window_id)
             window_name = window_obj.get_full_property(NET_WM_NAME, 0).value
         except AttributeError:
-            window_name = ''
+            window_name = b''
 
         return window_name.decode()
 
