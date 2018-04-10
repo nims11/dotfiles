@@ -508,11 +508,11 @@ def perform_action():
         elif action == 'weather_show':
             activate_temp_info('weather_bar')
         elif action == 'weather_open':
-            subprocess.Popen('urxvt -e bash -c \'curl wttr.in && read -n 1\'', shell=True)
+            subprocess.Popen('st -e bash -c \'curl wttr.in && read -n 1\'', shell=True)
         elif action == 'system_status':
-            subprocess.Popen('urxvt -e htop', shell=True)
+            subprocess.Popen('st -e htop', shell=True)
         elif action == 'music_open':
-            subprocess.Popen('urxvt -e ncmpcpp', shell=True)
+            subprocess.Popen('st -e ncmpcpp', shell=True)
         elif action == 'power_show':
             if not temp_info_active or temp_info_item != 'cur_power_selection':
                 WIDGETS['cur_power_selection'] = WIDGETS['power_help']
