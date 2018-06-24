@@ -122,6 +122,7 @@ hi CursorLine ctermbg=8
 
 au FileType tex setl textwidth=80
 au FileType tex setl conceallevel=0
+let g:polyglot_disabled = ['latex']
 au FileType vimwiki setl textwidth=80
 
 " Set spell checks
@@ -147,6 +148,7 @@ let g:vim_markdown_folding_disabled=1
 
 " gundo bindings
 nnoremap <leader>u :GundoToggle<CR>
+let g:gundo_prefer_python3 = 1
 
 " fzf bindings
 nnoremap <C-o> :Files<CR>

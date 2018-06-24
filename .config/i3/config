@@ -100,6 +100,11 @@ bindsym $mod+Shift+r restart
 # exit i3 (logs you out of your X session)
 bindsym $mod+Shift+e exec "~/scripts/exit_menu.sh"
 
+# Screenshot
+bindsym Print exec ~/scripts/screenshot.sh
+bindsym $mod+Print exec "~/scripts/screenshot.sh window"
+bindsym --release Ctrl+Print exec "~/scripts/screenshot.sh select"
+
 # resize window (you can also use the mouse for that)
 mode "resize" {
         # These bindings trigger as soon as you enter the resize mode

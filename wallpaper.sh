@@ -9,7 +9,10 @@ if [[ $1 == "next" ]]; then
         path=$(find ~/wallpapers -maxdepth 1 -type f \( -name '*.jpg' -o -name '*.png' \) | head -1)
     fi
 elif [[ $1 == "select" ]]; then
-    path=$(zenity --file-selection --filename=/home/nimesh/wallpapers/) 
+    TMPFILE=$(mktemp)
+    st -e bash -c "ranger --choosefile=$TMPFILE ~/wallpapers"
+    path=$(cat $TMPFILE)
+    rm $TMPFILE
 else
     path=$(find ~/wallpapers -maxdepth 1 -type f \( -name '*.jpg' -o -name '*.png' \) | shuf -n1)
 fi
