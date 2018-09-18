@@ -6,10 +6,11 @@
 	token = 3bee22cd2ba15bde09cdf0de5e03657f
 [core]
 	editor = vim
+	pager = diff-so-fancy | less --tabs=4 -RFX
 [color]
 	status = auto
 	branch = auto
-	ui = auto
+	ui = true
 [alias]
     st = status
     co = checkout
@@ -17,3 +18,15 @@
     lg = log --decorate --graph --oneline
 [commit]
 	gpgsign = true
+[color "diff-highlight"]
+	oldNormal = red bold
+	oldHighlight = red bold 52
+	newNormal = green bold
+	newHighlight = green bold 22
+[color "diff"]
+	meta = yellow
+	frag = magenta bold
+	commit = yellow bold
+	old = red bold
+	new = green bold
+	whitespace = red reverse
