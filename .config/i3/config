@@ -148,6 +148,8 @@ bindsym XF86Display exec "arandr"
 bindsym $mod+g exec "~/scripts/gamemode.sh"
 
 exec ~/.config/i3/autostart.sh
+exec --no-startup-id /usr/lib/kdeconnectd
+exec --no-startup-id indicator-kdeconnect
 
 # assign applications to workspaces
 assign [class="Firefox"] 2
