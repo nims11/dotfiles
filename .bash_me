@@ -78,3 +78,7 @@ alias youtube-dl-aria="youtube-dl --external-downloader aria2c --external-downlo
 alias steam-wine='WINEDEBUG=-all wine ~/.wine/drive_c/Program\ Files\ \(x86\)/Steam/Steam.exe -no-cef-sandbox >/dev/null 2>&1 &'
 alias cpcmd='tmux setb "$(fc -ln -1 -1)"'
 PATH=$HOME/.local/bin:$PATH
+
+function new_entry() {
+    nvim ~/diary/$(date -I"date")-"$1".md
+}
