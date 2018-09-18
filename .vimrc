@@ -121,6 +121,7 @@ hi CursorLine ctermbg=8
 " Conceal is turned on only in normal mode
 
 au FileType tex setl textwidth=80
+au FileType markdown setl textwidth=80
 au FileType tex setl conceallevel=0
 let g:polyglot_disabled = ['latex']
 au FileType vimwiki setl textwidth=80
