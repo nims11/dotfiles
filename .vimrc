@@ -7,22 +7,18 @@ endif
 call plug#begin('~/.vim/plugged')
 Plug 'ap/vim-buftabline'
 Plug 'tpope/vim-commentary'
-Plug 'tpope/vim-surround'
-Plug 'Shougo/deoplete.nvim'
-Plug 'SirVer/ultisnips'
+" Plug 'tpope/vim-surround'
+Plug 'lifepillar/vim-mucomplete'
+" Plug 'SirVer/ultisnips'
 Plug 'sjl/gundo.vim'
-Plug 'nathanaelkane/vim-indent-guides'
 Plug 'w0rp/ale'
 Plug 'airblade/vim-gitgutter'
 Plug 'sheerun/vim-polyglot'
-Plug 'vimwiki/vimwiki'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'ludovicchabant/vim-gutentags'
 Plug 'lervag/vimtex'
-
-" deoplete external sources
-Plug 'zchee/deoplete-jedi'
+Plug 'davidhalter/jedi-vim'
 Plug 'Rip-Rip/clang_complete'
 
 call plug#end()
@@ -154,14 +150,13 @@ let g:gundo_prefer_python3 = 1
 " fzf bindings
 nnoremap <C-o> :Files<CR>
 
-" use deoplete.
-let g:deoplete#enable_at_startup = 1
-let g:deoplete#enable_smart_case = 1
-" close preview window after completion
-autocmd! CompleteDone * pclose!
+" Autocompletion
+set completeopt-=preview
+set completeopt+=menuone,noselect
+let g:mucomplete#enable_auto_at_startup = 1
 
 " ultisnips settings
-let g:UltiSnipsSnippetDirectories=[$HOME.'/.vim/ultisnips']
+" let g:UltiSnipsSnippetDirectories=[$HOME.'/.vim/ultisnips']
 
 " ale settings
 let g:ale_lint_on_text_changed = 0
