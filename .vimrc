@@ -13,11 +13,11 @@ Plug 'lifepillar/vim-mucomplete'
 Plug 'sjl/gundo.vim'
 Plug 'w0rp/ale'
 Plug 'airblade/vim-gitgutter'
-Plug 'sheerun/vim-polyglot'
+" Plug 'sheerun/vim-polyglot'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'ludovicchabant/vim-gutentags'
-Plug 'lervag/vimtex'
+" Plug 'lervag/vimtex'
 Plug 'davidhalter/jedi-vim'
 Plug 'Rip-Rip/clang_complete'
 
@@ -154,6 +154,7 @@ nnoremap <C-o> :Files<CR>
 set completeopt-=preview
 set completeopt+=menuone,noselect
 let g:mucomplete#enable_auto_at_startup = 1
+let g:clang_library_path='/usr/lib/llvm-6.0/lib/libclang.so.1'
 
 " ultisnips settings
 " let g:UltiSnipsSnippetDirectories=[$HOME.'/.vim/ultisnips']
