@@ -9,15 +9,15 @@ Plug 'ap/vim-buftabline'
 Plug 'tpope/vim-commentary'
 " Plug 'tpope/vim-surround'
 Plug 'lifepillar/vim-mucomplete'
-" Plug 'SirVer/ultisnips'
-Plug 'sjl/gundo.vim'
+Plug 'mbbill/undotree'
 Plug 'w0rp/ale'
-Plug 'airblade/vim-gitgutter'
+Plug 'mhinz/vim-signify'
 " Plug 'sheerun/vim-polyglot'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'ludovicchabant/vim-gutentags'
-" Plug 'lervag/vimtex'
+Plug 'lervag/vimtex'
+
 Plug 'davidhalter/jedi-vim'
 Plug 'Rip-Rip/clang_complete'
 
@@ -29,11 +29,13 @@ syntax enable                 " enable syntax highlighting
 set t_co=256                  " force 256 colors
 set wrap                      " enable word wrap
 set showmatch mat=5           " blink match parenthesis, blink match time
-set ruler cursorline
+set cursorline
+set ruler
 set so=12                     " avoid cursor getting to extreme bottom/top
 set tm=400                    " Time waited for special sequences
 set noerrorbells novisualbell
 set hidden
+set lazyredraw
 colorscheme zenburn
 highlight ColorColumn ctermbg=1
 call matchadd('ColorColumn', '\%81v', 100)
@@ -50,7 +52,7 @@ set ffs=unix,dos,mac
 set wildignore=*.o,*~,*.pyc
 
 " prevents syntax highlighting for long lines (performance)
-set synmaxcol=120
+set synmaxcol=400
 
 " search options
 set ignorecase smartcase incsearch
@@ -68,6 +70,10 @@ nnoremap j gj
 nnoremap k gk
 vnoremap j gj
 vnoremap k gk
+
+" Set undofile
+set undodir=$HOME."/.undodir"
+set undofile
 
 " pane bindings
 nnoremap <leader>- :split<CR>
@@ -143,9 +149,8 @@ vmap <space> gc
 
 let g:vim_markdown_folding_disabled=1
 
-" gundo bindings
-nnoremap <leader>u :GundoToggle<CR>
-let g:gundo_prefer_python3 = 1
+" undotree bindings
+nnoremap <leader>u :UndotreeToggle<CR>
 
 " fzf bindings
 nnoremap <C-o> :Files<CR>
