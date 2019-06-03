@@ -91,10 +91,16 @@ inoremap jk <esc>
 nnoremap ; :
 
 " open at the previous cursor position
-autocmd! BufReadPost *
-     \ if line("'\"") > 0 && line("'\"") <= line("$") |
-     \   exe "normal! g`\"" |
-     \ endif
+function! ResCur()
+    if line("'\"") <= line("$")
+        normal! g`"
+        return 1
+    endif
+endfunction
+augroup resCur
+    autocmd!
+    autocmd BufWinEnter * call ResCur()
+augroup END
 
 nnoremap <leader>w :w<CR>
 " save write protected file as root
