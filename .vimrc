@@ -8,17 +8,15 @@ call plug#begin('~/.vim/plugged')
 Plug 'ap/vim-buftabline'
 Plug 'tpope/vim-commentary'
 Plug 'lifepillar/vim-mucomplete'
-Plug 'sjl/gundo.vim'
+Plug 'mbbill/undotree'
 Plug 'w0rp/ale'
-Plug 'airblade/vim-gitgutter'
 Plug 'sheerun/vim-polyglot'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'ludovicchabant/vim-gutentags'
-Plug 'lervag/vimtex'
 
-Plug 'davidhalter/jedi-vim'
-Plug 'Rip-Rip/clang_complete'
+Plug 'prabirshrestha/async.vim'
+Plug 'prabirshrestha/vim-lsp'
 
 call plug#end()
 
@@ -28,11 +26,13 @@ syntax enable                 " enable syntax highlighting
 set t_co=256                  " force 256 colors
 set wrap                      " enable word wrap
 set showmatch mat=5           " blink match parenthesis, blink match time
-set ruler cursorline
+set cursorline
+set ruler
 set so=12                     " avoid cursor getting to extreme bottom/top
 set tm=400                    " Time waited for special sequences
 set noerrorbells novisualbell
 set hidden
+set lazyredraw
 colorscheme zenburn
 highlight ColorColumn ctermbg=1
 call matchadd('ColorColumn', '\%81v', 100)
@@ -49,7 +49,7 @@ set ffs=unix,dos,mac
 set wildignore=*.o,*~,*.pyc
 
 " prevents syntax highlighting for long lines (performance)
-set synmaxcol=120
+set synmaxcol=400
 
 " search options
 set ignorecase smartcase incsearch
@@ -68,6 +68,10 @@ nnoremap k gk
 vnoremap j gj
 vnoremap k gk
 
+" Set undofile
+set undodir=$HOME."/.undodir"
+set undofile
+
 " pane bindings
 nnoremap <leader>- :split<CR>
 nnoremap <leader>\| :vsplit<CR>
@@ -84,18 +88,20 @@ inoremap jk <esc>
 nnoremap ; :
 
 " open at the previous cursor position
-autocmd! BufReadPost *
-     \ if line("'\"") > 0 && line("'\"") <= line("$") |
-     \   exe "normal! g`\"" |
-     \ endif
+function! ResCur()
+    if line("'\"") <= line("$")
+        normal! g`"
+        return 1
+    endif
+endfunction
+augroup resCur
+    autocmd!
+    autocmd BufWinEnter * call ResCur()
+augroup END
 
 nnoremap <leader>w :w<CR>
 " save write protected file as root
 nnoremap <leader>sw :w !sudo tee %<CR>
-
-" prevent slowdown due to large lines, disable syntax highlighting beyond the
-" given column
-set synmaxcol=120
 
 " Statusline
 set statusline=\ %M\ %y\ %r
@@ -140,29 +146,13 @@ vmap <space> gc
 
 let g:vim_markdown_folding_disabled=1
 
-" gundo bindings
-nnoremap <leader>u :GundoToggle<CR>
-let g:gundo_prefer_python3 = 1
+" undotree bindings
+nnoremap <leader>u :UndotreeToggle<CR>
 
 " fzf bindings
 nnoremap <C-o> :Files<CR>
 
-" Autocompletion
-set completeopt-=preview
-set completeopt+=menuone,noselect
-let g:mucomplete#enable_auto_at_startup = 1
 
-" " ultisnips settings
-" let g:UltiSnipsSnippetDirectories=[$HOME.'/.vim/ultisnips']
-
-" ale settings
-let g:ale_lint_on_text_changed = 0
-let g:ale_lint_on_save = 1
-let g:ale_cpp_clang_options = '-std=c++14 -Wall -Wshadow -I./src'
-let g:ale_linters = {'cpp': ['clang']}
-let g:ale_c_parse_compile_commands = 1
-
-" buftabline settings
 let g:buftabline_indicators = 1
 highlight BufTabLineFill ctermbg=8
 highlight BufTabLineHidden ctermbg=8
@@ -180,6 +170,32 @@ highlight BufTabLineActive ctermbg=8 ctermfg=4
 " gutentags
 let g:gutentags_exclude_project_root = ['/usr/local', $HOME]
 
+" ==================== IDE stuff =======================
+" Autocompletion
+set completeopt-=preview
+set completeopt+=menuone,noselect
+let g:mucomplete#enable_auto_at_startup = 1
+if executable('clangd')
+    augroup lsp_clangd
+        autocmd!
+        autocmd User lsp_setup call lsp#register_server({
+                    \ 'name': 'clangd',
+                    \ 'cmd': {server_info->['clangd']},
+                    \ 'whitelist': ['h', 'c', 'cpp', 'cc'],
+                    \ })
+        autocmd FileType h setlocal omnifunc=lsp#complete
+        autocmd FileType c setlocal omnifunc=lsp#complete
+        autocmd FileType cpp setlocal omnifunc=lsp#complete
+    augroup end
+endif
+
+" ale settings
+let g:ale_lint_on_text_changed = 0
+let g:ale_lint_on_save = 1
+let g:ale_linters = {'cpp': ['clangd', 'clang-tidy']}
+let g:ale_lint_on_text_changed = 'always'
+let g:ale_lint_delay = 5
+
 " ==================== CUSTOM SETTINGS ======================
 
 " remove stray ^M
@@ -190,7 +206,7 @@ noremap <leader>m mmHmt:%s/<C-V><cr>//ge<cr>'tzt'm
 :nnoremap <leader>sv :so $MYVIMRC<cr>
 
 if executable('ag') 
-    " Note we extract the column as well as the file and line number
     set grepprg=ag\ --nogroup\ --nocolor\ --column
     set grepformat=%f:%l:%c%m
 endif
+nmap <C-I> :%!clang-format -style=file<cr>
