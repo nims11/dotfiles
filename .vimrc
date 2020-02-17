@@ -7,19 +7,16 @@ endif
 call plug#begin('~/.vim/plugged')
 Plug 'ap/vim-buftabline'
 Plug 'tpope/vim-commentary'
-" Plug 'tpope/vim-surround'
 Plug 'lifepillar/vim-mucomplete'
 Plug 'mbbill/undotree'
 Plug 'w0rp/ale'
-Plug 'mhinz/vim-signify'
-" Plug 'sheerun/vim-polyglot'
+Plug 'sheerun/vim-polyglot'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'ludovicchabant/vim-gutentags'
-Plug 'lervag/vimtex'
 
-Plug 'davidhalter/jedi-vim'
-Plug 'Rip-Rip/clang_complete'
+Plug 'prabirshrestha/async.vim'
+Plug 'prabirshrestha/vim-lsp'
 
 call plug#end()
 
@@ -106,10 +103,6 @@ nnoremap <leader>w :w<CR>
 " save write protected file as root
 nnoremap <leader>sw :w !sudo tee %<CR>
 
-" prevent slowdown due to large lines, disable syntax highlighting beyond the
-" given column
-set synmaxcol=120
-
 " Statusline
 set statusline=\ %M\ %y\ %r
 set statusline+=%=
@@ -161,21 +154,6 @@ nnoremap <leader>u :UndotreeToggle<CR>
 " fzf bindings
 nnoremap <C-o> :Files<CR>
 
-" Autocompletion
-set completeopt-=preview
-set completeopt+=menuone,noselect
-let g:mucomplete#enable_auto_at_startup = 1
-let g:clang_library_path='/usr/lib/llvm-6.0/lib/libclang.so.1'
-
-" ultisnips settings
-" let g:UltiSnipsSnippetDirectories=[$HOME.'/.vim/ultisnips']
-
-" ale settings
-let g:ale_lint_on_text_changed = 0
-let g:ale_lint_on_save = 1
-let g:ale_cpp_clang_options = '-std=c++14 -Wall -Wshadow'
-let g:ale_linters = {'cpp': ['clang']}
-
 let g:vimwiki_table_mappings = 0
 
 let g:buftabline_indicators = 1
@@ -195,6 +173,32 @@ autocmd VimEnter,Colorscheme * :hi IndentGuidesEven ctermbg=0
 " gutentags
 let g:gutentags_exclude_project_root = ['/usr/local', $HOME]
 
+" ==================== IDE stuff =======================
+" Autocompletion
+set completeopt-=preview
+set completeopt+=menuone,noselect
+let g:mucomplete#enable_auto_at_startup = 1
+if executable('clangd')
+    augroup lsp_clangd
+        autocmd!
+        autocmd User lsp_setup call lsp#register_server({
+                    \ 'name': 'clangd',
+                    \ 'cmd': {server_info->['clangd']},
+                    \ 'whitelist': ['h', 'c', 'cpp', 'cc'],
+                    \ })
+        autocmd FileType h setlocal omnifunc=lsp#complete
+        autocmd FileType c setlocal omnifunc=lsp#complete
+        autocmd FileType cpp setlocal omnifunc=lsp#complete
+    augroup end
+endif
+
+" ale settings
+let g:ale_lint_on_text_changed = 0
+let g:ale_lint_on_save = 1
+let g:ale_linters = {'cpp': ['clangd', 'clang-tidy']}
+let g:ale_lint_on_text_changed = 'always'
+let g:ale_lint_delay = 5
+
 " ==================== CUSTOM SETTINGS ======================
 
 " remove stray ^M
@@ -208,7 +212,7 @@ noremap <leader>m mmHmt:%s/<C-V><cr>//ge<cr>'tzt'm
 nnoremap <leader>cc :%y+<CR>
 
 if executable('ag') 
-    " Note we extract the column as well as the file and line number
     set grepprg=ag\ --nogroup\ --nocolor\ --column
     set grepformat=%f:%l:%c%m
 endif
+nmap <C-I> :%!clang-format -style=file<cr>
