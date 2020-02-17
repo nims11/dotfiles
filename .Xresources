@@ -35,14 +35,7 @@
 *.color7:       #707880
 *.color15:      #c5c8c6
 
-! Font
-URxvt*font: xft:Inconsolata for Powerline:size=12
-URxvt*boldFont: xft:Inconsolata for Powerline:bold:size=12
-URxvt*scrollBar: False
-URxvt*skipBuiltinGlyphs: False
-
-
 *.opacity:      #FF
-lbar.location:  waterloo
+lbar.location:  london
 lbar.fontsize:	12
 lbar.height:	35
