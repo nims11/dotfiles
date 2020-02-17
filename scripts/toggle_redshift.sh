@@ -2,6 +2,6 @@
 if  killall redshift; then
     :
 else
-    redshift -l 43.464258:-80.52041 &
+    redshift &
     disown
 fi

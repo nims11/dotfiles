@@ -5,4 +5,5 @@ compton -b --config ~/.config/compton.conf
 /usr/lib/notification-daemon-1.0/notification-daemon start &
 mpd &
 udiskie &
+blueman-applet &
 xset -b

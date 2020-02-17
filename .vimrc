@@ -7,9 +7,7 @@ endif
 call plug#begin('~/.vim/plugged')
 Plug 'ap/vim-buftabline'
 Plug 'tpope/vim-commentary'
-" Plug 'tpope/vim-surround'
 Plug 'lifepillar/vim-mucomplete'
-" Plug 'SirVer/ultisnips'
 Plug 'sjl/gundo.vim'
 Plug 'w0rp/ale'
 Plug 'airblade/vim-gitgutter'
@@ -18,6 +16,7 @@ Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'ludovicchabant/vim-gutentags'
 Plug 'lervag/vimtex'
+
 Plug 'davidhalter/jedi-vim'
 Plug 'Rip-Rip/clang_complete'
 
@@ -120,11 +119,9 @@ au FileType tex setl textwidth=80
 au FileType markdown setl textwidth=80
 au FileType tex setl conceallevel=0
 let g:polyglot_disabled = ['latex']
-au FileType vimwiki setl textwidth=80
 
 " Set spell checks
 autocmd FileType tex setlocal spell
-autocmd FileType vimwiki setlocal spell
 
 " ==================== PLUGIN SETTINGS AND MAPPINGS ======================
 
@@ -155,30 +152,30 @@ set completeopt-=preview
 set completeopt+=menuone,noselect
 let g:mucomplete#enable_auto_at_startup = 1
 
-" ultisnips settings
+" " ultisnips settings
 " let g:UltiSnipsSnippetDirectories=[$HOME.'/.vim/ultisnips']
 
 " ale settings
 let g:ale_lint_on_text_changed = 0
 let g:ale_lint_on_save = 1
-let g:ale_cpp_clang_options = '-std=c++14 -Wall -Wshadow'
+let g:ale_cpp_clang_options = '-std=c++14 -Wall -Wshadow -I./src'
 let g:ale_linters = {'cpp': ['clang']}
+let g:ale_c_parse_compile_commands = 1
 
-let g:vimwiki_table_mappings = 0
-
+" buftabline settings
 let g:buftabline_indicators = 1
 highlight BufTabLineFill ctermbg=8
 highlight BufTabLineHidden ctermbg=8
 highlight BufTabLineCurrent ctermbg=None ctermfg=10
 highlight BufTabLineActive ctermbg=8 ctermfg=4
 
-" vim-indent-guide
-let g:indent_guides_enable_on_vim_startup = 1
-let g:indent_guides_guide_size = 1
-let g:indent_guides_start_level = 2
+" " vim-indent-guide
+" let g:indent_guides_enable_on_vim_startup = 1
+" let g:indent_guides_guide_size = 1
+" let g:indent_guides_start_level = 2
 
-autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd  ctermbg=0
-autocmd VimEnter,Colorscheme * :hi IndentGuidesEven ctermbg=0
+" autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd  ctermbg=0
+" autocmd VimEnter,Colorscheme * :hi IndentGuidesEven ctermbg=0
 
 " gutentags
 let g:gutentags_exclude_project_root = ['/usr/local', $HOME]
@@ -191,9 +188,6 @@ noremap <leader>m mmHmt:%s/<C-V><cr>//ge<cr>'tzt'm
 " open/source .vimrc
 :nnoremap <leader>ev :e $MYVIMRC<cr>
 :nnoremap <leader>sv :so $MYVIMRC<cr>
-
-" copy code to clipboard
-nnoremap <leader>cc :%y+<CR>
 
 if executable('ag') 
     " Note we extract the column as well as the file and line number
