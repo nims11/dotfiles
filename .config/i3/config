@@ -142,7 +142,7 @@ bindsym XF86MonBrightnessUp exec "light -A 10"
 bindsym XF86MonBrightnessDown exec "light -U 10"
 
 # Misc function buttons
-bindsym XF86Display exec "arandr"
+bindsym XF86Display exec "autorandr --change"
 
 # Gaming mode
 bindsym $mod+g exec "~/scripts/gamemode.sh"
@@ -163,9 +163,7 @@ for_window [class="^Pavucontrol$"] floating enable
 for_window [class="Arandr"] floating enable
 
 # https://github.com/ValveSoftware/steam-for-linux/issues/1040
-for_window [class="^Steam$" title="^Friends$"] floating enable
 for_window [class="^Steam$" title="Steam - News"] floating enable
-for_window [class="^Steam$" title=".* - Chat"] floating enable
 for_window [class="^Steam$" title="^Settings$"] floating enable
 for_window [class="^Steam$" title=".* - event started"] floating enable
 for_window [class="^Steam$" title=".* CD key"] floating enable

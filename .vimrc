@@ -14,6 +14,7 @@ Plug 'sheerun/vim-polyglot'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'ludovicchabant/vim-gutentags'
+" Plug 'rhysd/vim-clang-format'
 
 Plug 'prabirshrestha/async.vim'
 Plug 'prabirshrestha/vim-lsp'
@@ -159,14 +160,6 @@ highlight BufTabLineHidden ctermbg=8
 highlight BufTabLineCurrent ctermbg=None ctermfg=10
 highlight BufTabLineActive ctermbg=8 ctermfg=4
 
-" " vim-indent-guide
-" let g:indent_guides_enable_on_vim_startup = 1
-" let g:indent_guides_guide_size = 1
-" let g:indent_guides_start_level = 2
-
-" autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd  ctermbg=0
-" autocmd VimEnter,Colorscheme * :hi IndentGuidesEven ctermbg=0
-
 " gutentags
 let g:gutentags_exclude_project_root = ['/usr/local', $HOME]
 
@@ -186,6 +179,7 @@ if executable('clangd')
         autocmd FileType h setlocal omnifunc=lsp#complete
         autocmd FileType c setlocal omnifunc=lsp#complete
         autocmd FileType cpp setlocal omnifunc=lsp#complete
+        autocmd FileType cc setlocal omnifunc=lsp#complete
     augroup end
 endif
 
@@ -195,6 +189,10 @@ let g:ale_lint_on_save = 1
 let g:ale_linters = {'cpp': ['clangd', 'clang-tidy']}
 let g:ale_lint_on_text_changed = 'always'
 let g:ale_lint_delay = 5
+
+" clang-format
+let g:clang_format#detect_style_file = 1
+let g:clang_format#auto_format = 1
 
 " ==================== CUSTOM SETTINGS ======================
 

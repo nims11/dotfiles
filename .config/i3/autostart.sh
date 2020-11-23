@@ -6,4 +6,5 @@ compton -b --config ~/.config/compton.conf
 mpd &
 udiskie &
 blueman-applet &
+autorandr-launcher &
 xset -b
