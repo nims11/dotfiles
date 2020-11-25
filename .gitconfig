@@ -1,21 +1,17 @@
 [user]
 	name = Nimesh Ghelani
 	email = nimeshghelani@gmail.com
-[github]
-	user = nims11
-	token = 3bee22cd2ba15bde09cdf0de5e03657f
 [core]
 	editor = vim
-	pager = diff-so-fancy | less --tabs=4 -RFX
 [color]
 	status = auto
 	branch = auto
 	ui = true
 [alias]
-    st = status
-    co = checkout
-    pm = push origin master
-    lg = log --decorate --graph --oneline
+	st = status
+	co = checkout
+	pm = push origin master
+	lg = log --decorate --graph --oneline
 [commit]
 	gpgsign = true
 [color "diff-highlight"]
