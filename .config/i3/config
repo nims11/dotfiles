@@ -9,7 +9,7 @@ font pango:Roboto Mono for Powerline 10
 floating_modifier $mod
 
 # start a terminal
-bindsym $mod+Return exec st
+bindsym $mod+Return exec termite
 
 # kill focused window
 bindsym $alt+F4 kill

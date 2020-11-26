@@ -44,6 +44,5 @@ bindkey  "^[[7~"   beginning-of-line
 bindkey  "^[[8~"   end-of-line
 bindkey -M viins 'jk' vi-cmd-mode
 
-source /usr/share/doc/pkgfile/command-not-found.zsh
 source ~/.bash_me
 source ~/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh

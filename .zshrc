@@ -824,7 +824,7 @@ function grmlcomp () {
         _etc_hosts=()
     fi
     hosts=(
-        $(hostname)
+        $HOSTNAME
         "$_ssh_config_hosts[@]"
         "$_ssh_hosts[@]"
         "$_etc_hosts[@]"
