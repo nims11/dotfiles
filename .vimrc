@@ -1,7 +1,7 @@
 set nocompatible
 " load vim-plug
 if empty(glob("~/.vim/autoload/plug.vim"))
-    execute 'curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+    execute '!curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
 endif
 
 call plug#begin('~/.vim/plugged')
@@ -9,15 +9,14 @@ Plug 'ap/vim-buftabline'
 Plug 'tpope/vim-commentary'
 Plug 'lifepillar/vim-mucomplete'
 Plug 'mbbill/undotree'
-Plug 'w0rp/ale'
-Plug 'sheerun/vim-polyglot'
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+if !executable("fzf")
+    Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+endif
 Plug 'junegunn/fzf.vim'
-Plug 'ludovicchabant/vim-gutentags'
-" Plug 'rhysd/vim-clang-format'
-
-Plug 'prabirshrestha/async.vim'
+" Plug 'ludovicchabant/vim-gutentags'
+Plug 'rhysd/vim-clang-format'
 Plug 'prabirshrestha/vim-lsp'
+Plug 'SirVer/ultisnips'
 
 call plug#end()
 
@@ -167,7 +166,11 @@ let g:gutentags_exclude_project_root = ['/usr/local', $HOME]
 " Autocompletion
 set completeopt-=preview
 set completeopt+=menuone,noselect
+let g:mucomplete#chains = { 'default':
+            \ [ 'ulti','omni','tags','keyn','keyp','path','line','file'] }
 let g:mucomplete#enable_auto_at_startup = 1
+
+let g:lsp_diagnostics_echo_cursor = 1
 if executable('clangd')
     augroup lsp_clangd
         autocmd!
@@ -193,6 +196,12 @@ let g:ale_lint_delay = 5
 " clang-format
 let g:clang_format#detect_style_file = 1
 let g:clang_format#auto_format = 1
+
+" snippets
+let g:UltiSnipsExpandTrigger="<C-j>"
+let g:UltiSnipsJumpForwardTrigger="<C-j>"
+let g:UltiSnipsJumpBackwardTrigger="<C-k>"
+let g:UltiSnipsSnippetDirectories = ["~/.vim/ultisnips"]
 
 " ==================== CUSTOM SETTINGS ======================
 

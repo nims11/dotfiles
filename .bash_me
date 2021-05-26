@@ -24,7 +24,7 @@ function run() {
 alias c='xclip -selection clipboard'
 
 
-export VISUAL=nvim
+export VISUAL=vim
 export EDITOR=$VISUAL
 
 # Tmux auto start
@@ -83,5 +83,5 @@ alias cpcmd='tmux setb "$(fc -ln -1 -1)"'
 PATH=$HOME/.local/bin:$PATH
 
 function new_entry() {
-    nvim ~/diary/$(date -I"date")-"$1".md
+    vim ~/diary/$(date -I"date")-"$1".md
 }

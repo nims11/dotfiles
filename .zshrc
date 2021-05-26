@@ -3755,4 +3755,4 @@ zrclocal
 # mode: sh
 # End:
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+#[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
