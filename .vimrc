@@ -7,16 +7,12 @@ endif
 call plug#begin('~/.vim/plugged')
 Plug 'ap/vim-buftabline'
 Plug 'tpope/vim-commentary'
-Plug 'lifepillar/vim-mucomplete'
-Plug 'mbbill/undotree'
-if !executable("fzf")
-    Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-endif
-Plug 'junegunn/fzf.vim'
-" Plug 'ludovicchabant/vim-gutentags'
 Plug 'rhysd/vim-clang-format'
-Plug 'prabirshrestha/vim-lsp'
-Plug 'SirVer/ultisnips'
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim'
+Plug 'hrsh7th/nvim-compe'
+Plug 'neovim/nvim-lspconfig'
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 
 call plug#end()
 
@@ -34,8 +30,6 @@ set noerrorbells novisualbell
 set hidden
 set lazyredraw
 colorscheme zenburn
-highlight ColorColumn ctermbg=1
-call matchadd('ColorColumn', '\%81v', 100)
 
 " ==================== BASIC EDITOR SETTINGS AND MAPPINGS ====================
 " set leader key
@@ -49,7 +43,7 @@ set ffs=unix,dos,mac
 set wildignore=*.o,*~,*.pyc
 
 " prevents syntax highlighting for long lines (performance)
-set synmaxcol=400
+set synmaxcol=250
 
 " search options
 set ignorecase smartcase incsearch
@@ -107,7 +101,6 @@ nnoremap <leader>sw :w !sudo tee %<CR>
 set statusline=\ %M\ %y\ %r
 set statusline+=%=
 set statusline+=%f
-set statusline+=\ %{gutentags#statusline('[Generating...]')}
 set statusline+=%=
 set statusline+=[L]\ %3l/%L\ \ [C]\ %2c\ 
 
@@ -129,15 +122,14 @@ let g:polyglot_disabled = ['latex']
 " Set spell checks
 autocmd FileType tex setlocal spell
 
-" ==================== PLUGIN SETTINGS AND MAPPINGS ======================
+" Terminal bindings
+tnoremap <C-w>h <C-\><C-n><C-w>h
+tnoremap <C-w>j <C-\><C-n><C-w>j
+tnoremap <C-w>k <C-\><C-n><C-w>k
+tnoremap <C-w>l <C-\><C-n><C-w>l
+tnoremap jk <C-\><C-n>
 
-" set netrw options
-let g:netrw_banner = 0
-let g:netrw_liststyle = 3
-let g:netrw_browse_split = 4
-let g:netrw_altv = 1
-let g:netrw_winsize = 25
-nnoremap <leader><TAB> :Lexplore<cr>
+" ==================== PLUGIN SETTINGS AND MAPPINGS ======================
 
 " comment line
 nmap <space> gcc
@@ -149,8 +141,9 @@ let g:vim_markdown_folding_disabled=1
 " undotree bindings
 nnoremap <leader>u :UndotreeToggle<CR>
 
-" fzf bindings
-nnoremap <C-o> :Files<CR>
+" telescope bindings
+nnoremap <C-o> <cmd>Telescope find_files<cr>
+nnoremap <leader><TAB> <cmd>Telescope file_browser<cr>
 
 
 let g:buftabline_indicators = 1
@@ -159,49 +152,83 @@ highlight BufTabLineHidden ctermbg=8
 highlight BufTabLineCurrent ctermbg=None ctermfg=10
 highlight BufTabLineActive ctermbg=8 ctermfg=4
 
-" gutentags
-let g:gutentags_exclude_project_root = ['/usr/local', $HOME]
+" Treesitter
+lua <<EOF
+require'nvim-treesitter.configs'.setup {
+  ensure_installed = "maintained",
+  highlight = {
+    enable = true,
+    additional_vim_regex_highlighting = false,
+  },
+}
+EOF
 
 " ==================== IDE stuff =======================
-" Autocompletion
-set completeopt-=preview
-set completeopt+=menuone,noselect
-let g:mucomplete#chains = { 'default':
-            \ [ 'ulti','omni','tags','keyn','keyp','path','line','file'] }
-let g:mucomplete#enable_auto_at_startup = 1
 
-let g:lsp_diagnostics_echo_cursor = 1
-if executable('clangd')
-    augroup lsp_clangd
-        autocmd!
-        autocmd User lsp_setup call lsp#register_server({
-                    \ 'name': 'clangd',
-                    \ 'cmd': {server_info->['clangd']},
-                    \ 'whitelist': ['h', 'c', 'cpp', 'cc'],
-                    \ })
-        autocmd FileType h setlocal omnifunc=lsp#complete
-        autocmd FileType c setlocal omnifunc=lsp#complete
-        autocmd FileType cpp setlocal omnifunc=lsp#complete
-        autocmd FileType cc setlocal omnifunc=lsp#complete
-    augroup end
-endif
+set completeopt=menuone,noselect
+let g:compe = {}
+let g:compe.enabled = v:true
+let g:compe.autocomplete = v:true
+let g:compe.debug = v:false
+let g:compe.min_length = 1
+let g:compe.preselect = 'enable'
+let g:compe.throttle_time = 80
+let g:compe.source_timeout = 200
+let g:compe.resolve_timeout = 800
+let g:compe.incomplete_delay = 400
+let g:compe.max_abbr_width = 100
+let g:compe.max_kind_width = 100
+let g:compe.max_menu_width = 100
+let g:compe.documentation = v:true
 
-" ale settings
-let g:ale_lint_on_text_changed = 0
-let g:ale_lint_on_save = 1
-let g:ale_linters = {'cpp': ['clangd', 'clang-tidy']}
-let g:ale_lint_on_text_changed = 'always'
-let g:ale_lint_delay = 5
+let g:compe.source = {}
+let g:compe.source.path = v:true
+let g:compe.source.buffer = v:true
+let g:compe.source.nvim_lsp = v:true
+
+
+
+lua << EOF
+    local nvim_lsp = require('lspconfig')
+
+    -- Use an on_attach function to only map the following keys 
+    -- after the language server attaches to the current buffer
+    local on_attach = function(client, bufnr)
+        local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
+        local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
+
+        --Enable completion triggered by <c-x><c-o>
+        buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
+
+        -- Mappings.
+        local opts = { noremap=true, silent=true }
+
+        -- See `:help vim.lsp.*` for documentation on any of the below functions
+        buf_set_keymap('n', 'gD', '<Cmd>lua vim.lsp.buf.declaration()<CR>', opts)
+        buf_set_keymap('n', 'gd', '<Cmd>lua vim.lsp.buf.definition()<CR>', opts)
+        buf_set_keymap('n', 'K', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
+        buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
+        buf_set_keymap('n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+        buf_set_keymap('n', '<leader>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
+        buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
+        buf_set_keymap('n', '<leader>e', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
+        buf_set_keymap('n', '[d', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
+        buf_set_keymap('n', ']d', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
+        buf_set_keymap("n", "<leader>f", "<cmd>lua vim.lsp.buf.formatting()<CR>", opts)
+    end
+
+    -- Use a loop to conveniently call 'setup' on multiple servers and
+    -- map buffer local keybindings when the language server attaches
+    local servers = { "clangd", "pyright", "cmake" }
+    for _, lsp in ipairs(servers) do
+        nvim_lsp[lsp].setup { on_attach = on_attach }
+    end
+EOF
 
 " clang-format
 let g:clang_format#detect_style_file = 1
 let g:clang_format#auto_format = 1
 
-" snippets
-let g:UltiSnipsExpandTrigger="<C-j>"
-let g:UltiSnipsJumpForwardTrigger="<C-j>"
-let g:UltiSnipsJumpBackwardTrigger="<C-k>"
-let g:UltiSnipsSnippetDirectories = ["~/.vim/ultisnips"]
 
 " ==================== CUSTOM SETTINGS ======================
 
@@ -216,4 +243,3 @@ if executable('ag')
     set grepprg=ag\ --nogroup\ --nocolor\ --column
     set grepformat=%f:%l:%c%m
 endif
-nmap <C-I> :%!clang-format -style=file<cr>
